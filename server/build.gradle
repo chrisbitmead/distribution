@@ -115,7 +115,7 @@ webdriverBinaries {
 }
 
 bootWar {
-    archiveName 'nsldist-server.war'
+    archiveName 'distribution-server.war'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 

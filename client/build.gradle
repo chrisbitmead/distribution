@@ -16,7 +16,7 @@ node {
 war {
     from 'dist'
 //    archiveFileName = 'fap.war'
-    archiveName = 'fap.war'
+    archiveName = 'distribution.war'
 }
 
 task bootWar(dependsOn: war) {

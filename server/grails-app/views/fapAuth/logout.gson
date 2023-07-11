@@ -1,0 +1,10 @@
+
+import au.org.biodiversity.nsl.nsldist.LoginCommand
+
+model {
+    LoginCommand m
+}
+json {
+    message m.message
+    success (m.message ? false : true)
+}

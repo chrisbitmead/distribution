@@ -1,0 +1,17 @@
+model {
+	Integer total
+    LinkedHashMap results
+    LinkedHashMap clones
+    LinkedHashMap section_context
+    LinkedHashMap landscape
+    LinkedHashMap ntnl
+}
+
+json {
+    total total
+    results results
+    clones clones
+    section_context section_context
+    landscape landscape
+    ntnl ntnl
+}

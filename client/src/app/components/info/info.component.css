@@ -1,0 +1,83 @@
+.info-pane {
+    background-color: white;
+    padding: 2em;
+    border: 2px solid rgba(77, 156, 237, 0.7);
+    border-radius: 3px;
+    overflow: auto;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-top: 0.5em;
+}
+
+#close {
+    float: right;
+    margin-top: -20px;
+}
+
+small {
+    font-size: 0.8em;
+    color: green;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: blue;
+    font-weight: bold;
+}
+
+mapped-item,
+section-item,
+group-item {
+    display: block;
+    border-bottom: 1px solid grey;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    cursor: pointer;
+}
+
+mapped-item:hover,
+section-item:hover,
+group-item:hover {
+    background-color: rgba(0, 255, 255, 0.35);
+}
+
+.selected {
+    background-color: rgba(65, 182, 34, 0.35);
+}
+
+h1 {
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgba(109, 109, 109, 0.69);
+    color: white;
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+}
+
+h2 {
+    font-size: 1em;
+    font-weight: bold;
+    background-color: rgba(109, 109, 109, 0.69);
+    padding: 0.5em 0.3em;
+    color: white;
+    border-radius: 2px;
+}
+
+.btn-scroll {
+    /*display: none;*/
+    /*position: absolute;*/
+    /*bottom: 20px;*/
+    /*right: 30px;*/
+    float: right;
+    /*text-align: right;*/
+    /*z-index: 99;*/
+    /*font-size: 18px;*/
+    /*border: none;*/
+    /*outline: none;*/
+    /*background-color: red;*/
+    color: white;
+    /*cursor: pointer;*/
+    /*padding: 15px;*/
+    /*border-radius: 4px;*/
+}
+

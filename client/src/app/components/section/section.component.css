@@ -1,0 +1,17 @@
+
+small {
+    font-size: 0.8em;
+    color: green;
+}
+
+.selected {
+    background-color: rgba(65, 182, 34, 0.35);
+}
+
+span.section {
+    font-size: 0.9em;
+    background:#e8ccaf;
+    padding: 2px;
+    border: 1px solid grey;
+    border-radius: 2px;
+}

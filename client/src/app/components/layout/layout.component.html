@@ -1,0 +1,7 @@
+<div class="parent">
+  <div class="leftPane" [ngClass]="{'closed': leftClosed}"><ng-content select="[leftPane]"></ng-content></div>
+  <div class="resizer" (click)="toggleLeft()">&gt;</div>
+  <div class="midPane"><ng-content select="[midPane]"></ng-content></div>
+  <div class="resizer right" (click)="toggleRight()">&lt;</div>
+  <div class="rightPane" [ngClass]="{'closed': rightClosed}"><ng-content select="[rightPane]"></ng-content></div>
+</div>s

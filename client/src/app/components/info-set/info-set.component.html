@@ -1,0 +1,28 @@
+<div *ngIf="jsonData['criteria'] && !jsonData['criteria']?.mapGrouped">
+<!--    <div *ngIf="jsonData['criteria']?.detail">-->
+        <h2 style="background-color:{{groupColor}}">
+            {{jsonData['criteria'].mapped&&jsonData['criteria'].unmapped ? results?.plants?.features?.length : jsonData['criteria'].mapped ? results?.mappedPlants?.features?.length : jsonData['criteria'].unmapped ? results?.unmappedPlants?.features?.length : 0}} locations
+            , {{jsonData['criteria'].mapped&&jsonData['criteria'].unmapped ? results?.plants?.qty : jsonData['criteria'].mapped ? results?.mappedPlants?.qty: jsonData['criteria'].unmapped ? results?.unmappedPlants?.qty : 0}} {{name}}
+        </h2>
+        <div *ngFor="let item of results?.plants?.features">
+            <mapped-item *ngIf="jsonData['criteria'].mapped && item.geometry.coordinates[0]" groupColor="{{groupColor}}" [item]="item" (selectedRequest)="selectItem($event)"></mapped-item>
+            <section-item *ngIf="jsonData['criteria'].unmapped && !item.geometry.coordinates[0]" groupColor="{{groupColor}}" [item]="item"
+                          (selectedRequest)="selectItem($event)"></section-item>
+        </div>
+<!--    </div>-->
+<!--    <div *ngIf="!jsonData['criteria']?.detail">-->
+<!--        <h2 style="background-color:{{groupColor}}">-->
+<!--            {{jsonData['criteria'].mapped&&jsonData['criteria'].unmapped ? results?.plantsGrouped?.length : jsonData['criteria'].mapped ? results?.mappedPlantsGrouped?.length: jsonData['criteria'].unmapped ? results?.unmappedPlantsGrouped?.length : 0}} taxa-->
+<!--            , {{jsonData['criteria'].mapped&&jsonData['criteria'].unmapped ? results?.plants?.features?.length : jsonData['criteria'].mapped ? results?.mappedPlants?.features?.length: jsonData['criteria'].unmapped ? results?.unmappedPlants?.features?.length : 0}} locations-->
+<!--            , {{jsonData['criteria'].mapped&&jsonData['criteria'].unmapped ? results?.plants?.qty : jsonData['criteria'].mapped ? results?.mappedPlants?.qty: jsonData['criteria'].unmapped ? results?.unmappedPlants?.qty : 0}} {{name}}-->
+
+<!--        </h2>-->
+<!--        <div *ngFor="let item of results?.plantsGrouped">-->
+<!--            <group-item *ngIf="jsonData['criteria'].mapped && item.mapped?.features?.length > 0" groupColor="{{groupColor}}" [item]="item.mapped" [mapped]="true"-->
+<!--                        (selectedRequest)="selectItem($event)"></group-item>-->
+<!--            <group-item *ngIf="jsonData['criteria'].unmapped && item.unmapped?.features?.length > 0" groupColor="{{groupColor}}" [item]="item.unmapped" [mapped]="false"-->
+<!--                        (selectedRequest)="selectItem($event)"></group-item>-->
+<!--        </div>-->
+<!--    </div>-->
+</div>
+

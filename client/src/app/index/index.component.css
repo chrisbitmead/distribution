@@ -1,0 +1,57 @@
+body {
+    margin:0;
+    padding:0;
+}
+
+#content {
+    height: 99vh;
+    width: 99vw;
+}
+
+#panel {
+    vertical-align: top;
+    display: block;
+}
+
+#map {
+    position: relative;
+    height: 100%;
+    border: solid 1px black;
+    display: block;
+}
+
+h1 {
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgba(109, 109, 109, 0.69);
+    color: white;
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+}
+
+#legend img {
+    width: 30px;
+}
+
+#legend i {
+    font-family: 'ANBGmappingfont';
+    font-style:normal;
+    font-size:30px;
+    position: relative;
+    top: 7px;
+}
+
+hr {
+    margin-top: 0.0em;
+    margin-bottom: 0.4em;
+}
+
+#legend div {
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#map {
+    height: 92%;
+}
+

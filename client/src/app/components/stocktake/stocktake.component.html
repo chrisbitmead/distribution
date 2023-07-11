@@ -1,0 +1,19 @@
+{{data.label}}
+<br/>
+<a href="{{configService.lcHost()}}/living-collection{{!feature.properties.item_sit_id.startsWith('N') ? ('/item/show/' + feature.properties.item_id) : ('/stock/editNtnl/' + feature.properties.item_sit_id.replace('N', ''))}}" target="_blank">{{data.accession}}</a>
+<div *ngIf="canStocktake">
+    <button (click)="stocktake(data.item_sit_id)" title="Found" tooltip="Found">
+        &#x2705;
+    </button>
+</div>
+<br/>
+<div class="form-group">
+    <label for="qty">Quantity</label>
+    <input [(ngModel)]="feature.properties.qty" class="form-control" type="number" name="qty">
+</div>
+<div class="form-group">
+    <label for="notes">Notes</label>
+    <input [(ngModel)]="notes" class="form-control" type="text" name="notes">
+</div>
+<button (click)="this.stocktake(feature.properties.item_sit_id)" title="Save" tooltip="Save">Save</button>
+<button (click)="this.cancel()" title="Cancel" tooltip="Cancel">Cancel</button>

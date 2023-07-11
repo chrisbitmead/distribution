@@ -1,0 +1,186 @@
+plugins {
+//    id "com.moowork.node" version "1.3.1"
+    id 'org.hidetake.ssh' version '2.10.1'
+    id "com.github.node-gradle.node" version "3.2.1"
+    id "war"
+}
+
+//apply plugin: 'war:7.3'
+
+node {
+    version = '16.10.0'
+//    version = '16.14.2'
+    download = true
+}
+
+war {
+    from 'dist'
+//    archiveFileName = 'fap.war'
+    archiveName = 'fap.war'
+}
+
+task bootWar(dependsOn: war) {
+}
+
+//bootWar {
+//    archiveName 'fap.war'
+//}
+
+
+task bootRun(type: NpmTask, dependsOn: 'npmInstall') {
+    group = 'application'
+    description = 'Start client side server'
+    args = ['run', 'start']
+}
+
+//task test(type: NpmTask, dependsOn: 'npmInstall') {
+//    group = 'verification'
+//    description = 'Execute unit tests'
+//    args = ['run', 'test']
+//}
+
+task integrationTest(type: NpmTask, dependsOn: 'npmInstall') {
+    args = ['run', 'e2e']
+}
+
+task buildClient(type: NpmTask, dependsOn: 'npmInstall') {
+    group = 'build'
+    description = 'Compile client side assets for development'
+    args = ['run', 'build']
+}
+
+build.dependsOn(buildClient)
+bootRun.dependsOn(buildClient)
+war.dependsOn(buildClient)
+
+remotes {
+    gishost {
+        host = 'webtst1-ibis.it.csiro.au'
+//        user = System.getProperty('user.name')
+        user = 'bit010'
+//        agent = true
+        identity = file("${System.getProperty('user.home')}/.ssh/id_rsa")
+    }
+}
+ssh.settings {
+    fileTransfer = 'scp'
+}
+
+task installShp2json  (type: NpmTask) {
+    args = [ 'install', '-g', 'shapefile']
+}
+
+task installTopo  (type: NpmTask) {
+    args = [ 'install', '-g', 'topojson-server']
+}
+
+ext.IBRA7StatesJson = "$projectDir/src/assets/IBRA7_states.json"
+ext.IBRA7RegionsJson = "$projectDir/src/assets/IBRA7_regions.json"
+ext.IBRA7SubregionsJson = "$projectDir/src/assets/IBRA7_subregions.json"
+ext.IMCRA4Json = "$projectDir/src/assets/IMCRA4.json"
+ext.IMCRA4Json = "$projectDir/src/assets/IMCRA4.json"
+ext.AustBoundariesJson = "$projectDir/src/assets/AustBoundaries.json"
+
+task generateIBRA7States(type: Exec) {
+    dependsOn 'installShp2json'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IBRA7StatesJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'shp2json', "$projectDir/shape/IBRA7_regions_states/ibra7_regions_states".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'shp2json', "$projectDir/shape/IBRA7_regions_states/ibra7_regions_states"
+    }
+}
+
+
+task generateIBRA7Regions(type: Exec) {
+    dependsOn 'installShp2json'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IBRA7RegionsJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'shp2json', "$projectDir/shape/IBRA7_regions/ibra7_regions".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'shp2json', "$projectDir/shape/IBRA7_regions/ibra7_regions"
+    }
+}
+
+task generateIBRA7RegionsTopo(type: Exec) {
+    dependsOn 'generateIBRA7Regions', 'installTopo'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IBRA7RegionsTopoJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'geo2topo', "$IBRA7RegionsJson".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'geo2topo', "$IBRA7RegionsJson"
+    }
+}
+
+task generateIBRA7Subregions(type: Exec) {
+    dependsOn 'installShp2json'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IBRA7SubregionsJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'shp2json', "$projectDir/shape/IBRA7_subregions/ibra7_subregions".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'shp2json', "$projectDir/shape/IBRA7_subregions/ibra7_subregions"
+    }
+}
+
+task generateIBRA7SubregionsTopo(type: Exec) {
+    dependsOn 'generateIBRA7Subregions', 'installTopo'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IBRA7SubregionsTopoJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'geo2topo', "$IBRA7SubregionsJson".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'geo2topo', "$IBRA7SubregionsJson"
+    }
+}
+
+task generateIMCRA4(type: Exec) {
+    dependsOn 'installShp2json'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(IMCRA4Json)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'shp2json', "$projectDir/shape/imcra_provincial_bioregions/imcra4_pb".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'shp2json', "$projectDir/shape/imcra_provincial_bioregions/imcra4_pb"
+    }
+}
+
+task generateAustBoundaries(type: Exec) {
+    dependsOn 'installShp2json'
+    doFirst {
+        standardOutput = new java.io.FileOutputStream(AustBoundariesJson)
+    }
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npx', 'shp2json', "$projectDir/shape/Australian_boundaries/State_Territory_Compilation_x20230613".replace('\\', '/')
+    } else {
+        commandLine 'npx', 'shp2json', "$projectDir/shape/Australian_boundaries/State_Territory_Compilation_x20230613"
+    }
+}
+
+task generateJson {
+    dependsOn 'generateIBRA7States', 'generateIBRA7Regions', 'generateIBRA7Subregions', 'generateIMCRA4', 'generateAustBoundaries'
+}
+
+task generateTopo {
+    dependsOn 'generateIBRA7RegionsTopo', 'generateIBRA7SubregionsTopo', 'generateIMCRA4Topo'
+}
+
+task pushGeoJson(type: Exec) {
+    dependsOn 'checkinGeoJson'
+    commandLine 'git', 'push', '-u', 'origin', 'master'
+}
+
+task checkinGeoJson(type: Exec) {
+    dependsOn 'generateSectionsJson', 'generateIBRA7'
+    commandLine 'git', 'commit', '-m', 'Gradle update of geojson', "src/assets/sections.json"
+    commandLine 'git', 'commit', '-m', 'Gradle update of geojson', "src/assets/water_sprinklers.json"
+}

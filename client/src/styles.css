@@ -1,0 +1,105 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('../node_modules/font-awesome/css/font-awesome.min.css');
+@import url("../node_modules/leaflet/dist/leaflet.css");
+@import url("../node_modules/bootstrap/dist/css/bootstrap.css");
+
+@import url("assets/ANBGmappingfont/Web-TT/ANBG-font.css");
+
+
+.on-map {
+    position: relative;
+    z-index: 500;
+    /*width: 300px;*/
+}
+
+.map-button {
+    width: 35px;
+    height: 35px;
+    text-align: center;
+}
+
+.mapIconCls {
+    font-family: 'ANBGmappingfont';
+    font-style:normal;
+}
+
+.plantCount {
+
+}
+
+.leaflet-clickable {
+    cursor: crosshair !important;
+}
+
+.leaflet-container {
+    cursor: help !important;
+}
+
+.tt {
+    background-color: white;
+    font-size: 1.2em;
+    margin-left: 15px !important;
+    margin-right: 15px !important;
+}
+
+.leaflet-tooltip {
+    position: absolute;
+    padding: 0 1em 0 1em !important;
+    background-color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    color: #222;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.zoom_16 {
+    font-size: 0.5em;
+}
+.zoom_17 {
+    font-size: 0.6em;
+}
+.zoom_18 {
+    font-size: 0.7em;
+}
+.zoom_19 {
+    font-size: 0.9em;
+}
+.zoom_20 {
+    font-size: 1.1em;
+}
+.zoom_21 {
+    font-size: 1.2em;
+}
+.zoom_22 {
+    font-size: 1.3em;
+}
+.zoom_23 {
+    font-size: 1.4em;
+}
+.zoom_24 {
+    font-size: 1.5em;
+}
+
+.leaflet-tooltip-top::before, .leaflet-tooltip-bottom::before, .leaflet-tooltip-left::before, .leaflet-tooltip-right::before {
+    border: none !important;
+}
+
+.leaflet-marker-icon {
+    font-size: 20px;
+}
+
+div.help {
+    display: inline-block;
+    float: right;
+    margin-right: 0;
+    margin-left: auto;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

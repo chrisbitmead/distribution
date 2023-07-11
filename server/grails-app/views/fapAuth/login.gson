@@ -1,0 +1,18 @@
+
+import au.org.biodiversity.nsl.nsldist.LoginCommand
+import au.org.biodiversity.nsl.nsldist.User
+
+model {
+    LoginCommand m
+    User user
+}
+json {
+    user {
+        username user?.username
+        roles user?.authorities?.collect { role ->
+                role.authority
+        }
+    }
+    message m.message
+    success (m.message ? false : true)
+}

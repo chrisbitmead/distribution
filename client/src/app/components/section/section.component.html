@@ -1,0 +1,15 @@
+<div [ngClass]="{'selected':selected, 'section': true}" (click)="highlight()">
+  <div>
+    <span class="section">
+      <i style="color:{{groupColor}};" class="fa fa-square-o">
+        <i [innerHTML]="plantdataService.getIcon(item).options.html | safe: 'html'"></i>
+        {{item.properties.section}}
+      </i>
+    </span>
+    {{item.properties.label}} <img *ngIf="item.properties.label !== item.properties.name" src="images/information.png" title="{{item.properties.name}}"> &times; {{item.properties.qty}} {{item.properties.item_size}}
+  </div>
+</div>
+  <div>
+    <small><a href="{{configService.lcHost()}}/living-collection{{!item.properties.item_sit_id.startsWith('N') ? ('/item/show/' + item.properties.item_id) : ('/stock/editNtnl/' + item.properties.item_sit_id.replace('N', ''))}}" target="_blank">{{item.properties.accession}}</a></small>
+  </div>
+<button *ngIf="configService?.user?.canStocktake" (click)="this.mapPlant()" title="Map" tooltip="Locate plant onto map">Map</button>

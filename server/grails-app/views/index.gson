@@ -1,0 +1,6 @@
+response.status 200
+
+json {
+    message "Hello World"
+    error 200
+}

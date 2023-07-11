@@ -1,0 +1,8 @@
+/* Webfont: ANBG mapping font */
+@font-face {
+    font-family: 'ANBGmappingfont';
+    src: url('ANBG-font-COLR.ttf') format('truetype'); /* Safari, Android, iOS */
+    font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}

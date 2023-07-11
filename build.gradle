@@ -1,0 +1,10 @@
+
+tasks.register("bootWar") {
+  dependsOn(':client:bootWar')
+  dependsOn(':server:bootWar')
+}
+
+tasks.register("clean") {
+  dependsOn(':client:clean')
+  dependsOn(':erver:clean')
+}

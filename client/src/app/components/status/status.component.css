@@ -1,0 +1,8 @@
+
+ngb-alert,
+ngb-alert div
+{
+    z-index: 1000;
+    left: 1em;
+    position: absolute;
+}

@@ -1,0 +1,13 @@
+<form #myForm="ngForm">
+    <div class="form-group">
+        <label for="name">Section</label>
+        <input [(ngModel)]="name" class="form-control" type="text" name="sectionCode" #sectionCodeModel="ngModel" required appSituationDirective>
+        <div [hidden]="sectionCodeModel.valid || sectionCodeModel.pristine" class="alert alert-danger">Invalid Section</div>
+    </div>
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <input [(ngModel)]="notes" class="form-control" type="text" name="notes">
+    </div>
+<button (click)="this.confirm()" title="Confirm" tooltip="Confirm" [disabled]="!myForm.form.valid">Confirm</button>
+<button (click)="this.cancel()" title="Cancel" tooltip="Cancel">Cancel</button>
+</form>

@@ -1,0 +1,10 @@
+
+model {
+    String message
+    Map<String,Object> ntnl
+}
+json {
+    message message
+    ntnl ntnl
+    success (message ? false : true)
+}

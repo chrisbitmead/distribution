@@ -1,0 +1,212 @@
+---
+#server:
+#    servlet:
+#        context-path: /nsldist-server
+grails:
+    profile: angular
+    codegen:
+        defaultPackage: au.gov.anbg.fap
+    gorm:
+        reactor:
+            events: false
+        failOnError: true
+#    spring:
+#        transactionManagement:
+#            proxies: false
+    plugin:
+#        springsecurity:
+#            logout.postOnly: false
+#            userLookup:
+#                userDomainClassName: 'au.org.biodiversity.User'
+#                authorityJoinClassName: 'au.org.biodiversity.UserRole'
+#                passwordPropertyName: 'passwd'
+#            authority:
+#                className: 'au.org.biodiversity.Role'
+#            useSwitchUserFilter: true
+#            switchUser:
+#                ui:
+#                    switchUserRoleName: 'ROLE_SWITCH_USER'
+#            providerNames: [
+##                    'tokenAuthenticationProvider',
+#                    'daoAuthenticationProvider',
+#                    'anonymousAuthenticationProvider',
+#                    'rememberMeAuthenticationProvider'
+#            ]
+#            controllerAnnotations:
+#                staticRules: [
+#                    { pattern: '/**',               access: [ 'permitAll' ] }
+#                ]
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    jmx:
+        unique-names: true
+    main:
+        allow-circular-references: true # last resort
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+    devtools:
+        restart:
+            additional-exclude:
+                - '*.gsp'
+                - '**/*.gsp'
+                - '*.gson'
+                - '**/*.gson'
+                - 'logback.groovy'
+                - '*.properties'
+management:
+    endpoints:
+        enabled-by-default: false
+
+---
+grails:
+    cors:
+        enabled: true
+        allowCredentials: true
+        allowedOriginPatterns: '*'
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            json:
+              - application/json
+              - text/json   
+            hal:
+              - application/hal+json
+              - application/hal+xml  
+            xml:
+              - text/xml
+              - application/xml                                 
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            js: text/javascript
+            rss: application/rss+xml
+            text: text/plain
+            all: '*/*'            
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+
+
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: false
+        use_query_cache: false
+#        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+dataSource:
+    pooled: true
+    jmxExport: true
+#    driverClassName: org.h2.Driver
+#    username: sa
+#    password:
+
+environments:
+    development:
+        fapURL: https://test.anbg.gov.au/fap
+        server:
+            port: 8484
+#        dataSource:
+##            dbCreate: create
+#            dbCreate: update
+#            url: jdbc:postgresql://pgsql/nsldist
+#            driverClassName: org.postgresql.Driver
+#            username: postgres
+#            password: Nb47mLK4R49GNzna
+##            logSql: true
+#            properties:
+#                jmxEnabled: true
+#                initialSize: 5
+#                maxActive: 50
+#                minIdle: 5
+#                maxIdle: 25
+#                maxWait: 10000
+#                maxAge: 600000
+#                timeBetweenEvictionRunsMillis: 5000
+#                minEvictableIdleTimeMillis: 60000
+#                validationQuery: SELECT 1
+#                validationQueryTimeout: 3
+#                validationInterval: 15000
+#                testOnBorrow: true
+#                testWhileIdle: true
+#                testOnReturn: false
+#                jdbcInterceptors: ConnectionState
+#                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+    test:
+        fapURL: https://test.anbg.gov.au/fap
+        dataSource:
+            dbCreate: none
+            jndiName: java:comp/env/jdbc/fap
+            dialect: org.hibernate.dialect.Oracle10gDialect
+            #            driverClassName: oracle.jdbc.OracleDriver
+            #            url: jdbc:oracle:thin:@oracle-test1-ibis.it.csiro.au:1522:IT03
+            #            username: lc_user
+            #            password: cxEJa70#
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT 1
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+    staging:
+        fapURL: https://anbg.gov.au/fap
+        dataSource:
+            jndiName: java:comp/env/jdbc/fap
+            dialect: org.hibernate.dialect.Oracle10gDialect
+    production:
+        fapURL: https://anbg.gov.au/fap
+        dataSource:
+            dbCreate: none
+            jndiName: java:comp/env/jdbc/fap
+            dialect: org.hibernate.dialect.Oracle10gDialect
+            #            url : jdbc:oracle:thin:@oracle-prod1-ibis.it.csiro.au:1521:IP03
+            #            username : lc_user
+            #            password : x8xpF38Y3r
+            #            driverClassName: oracle.jdbc.OracleDriver
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED

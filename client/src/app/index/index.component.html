@@ -1,0 +1,68 @@
+<div id="content" role="main">
+    <nav class="navbar nav-default navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#" scroll-to="welcome" offset="50"><span>NSL Distribution</span></a>
+            <search-status [version]="this.version" [ntnl]="ntnl" [jsonData]="this.jsonData"></search-status>
+        </div>
+        <div style="display:inline-block;font-size:9px;">
+            <form>
+            <div>
+                <ng-template [ngIf]="configService.user == null" [ngIfElse]="elseBlock">
+                    <input length="32" size="12" style="font-size:8px" id="user" name="user" autocomplete="username" type="text" placeholder="user name"
+                           [(ngModel)]="username" (keyup.enter)="login()">
+                    <input length="32" size="12" style="font-size:8px" id="password" autocomplete="current-password" name="password" type="password"
+                           placeholder="password"
+                           [(ngModel)]="password" (keyup.enter)="login()">
+                    <button class="btn btn-primary" style="font-size:8px" (click)="login()">Login</button>
+                </ng-template>
+                <ng-template #elseBlock>
+                    {{configService.user.username}}
+                    <button class="btn btn-primary" style="font-size:8px" (click)="logout()">Logout</button>
+                </ng-template>
+                <a href="https://www.anbg.gov.au/gardens/living/findaplant/fap/index.html" title="help">(Help)</a>
+            </div>
+            </form>
+            <p style="font-size:8px;color:#ff0000;">{{message}}</p>
+        </div>
+    </nav>
+    <as-split id="allSplit" unit="percent" [direction]="direction" (dragEnd)="dragEnd('percent', $event)" #split="asSplit">
+        <as-split-area id="panel" size="5" #area1="asSplitArea">
+            <as-split style="height: 91%;" unit="pixel" direction="vertical" (dragEnd)="dragEnd('percent', $event)" #split="asSplit">
+                <as-split-area id="nav" size="{{advanced?423:50}}" #area1="asSplitArea">
+                    <navigator [indexComponent]="this" [ntnl]="ntnl" [pushQuery]="selectedSection"></navigator>
+                </as-split-area>
+                <as-split-area id="res" size="*" #area2="asSplitArea">
+                    <info [version]="this.version" ></info>
+                </as-split-area>
+            </as-split>
+        </as-split-area>
+        <as-split-area size="85" #area2="asSplitArea">
+            <div id="map"></div>
+            <i id="location">{{location}}</i>
+            <i style="color: lightgray;">version: {{configService.version}}</i>
+            <i  style="color: lightgray;" *ngIf="showInfo">
+            server endpoint: <a style="color: lightgray;" href="{{configService.apiHost()}}">{{configService.apiHost()}}</a>, server: {{config.getConfig('server')}}, environment: {{config.getEnv('env')}}
+            </i>
+        </as-split-area>
+        <as-split-area id="legend" size="10" #area3="asSplitArea">
+            <h1>Legend</h1>
+            <div>Feature
+                <button *ngIf="configService.user" id="close-plantings" class="btn btn-secondary btn-sm float-right" href="#" title="Hide Section" (click)="legendHide()">
+                    <ng-template [ngIf]="legendSee" [ngIfElse]="elseLegendSee">
+                        &#x2303;
+                    </ng-template>
+                    <ng-template #elseLegendSee>
+                        &#x2304;
+                    </ng-template>
+                </button>
+            </div>
+            <div id="legend-simple" *ngIf="legendSee">
+                <div><i class="legend">&#xE003;</i> Bar</div>
+                <hr>
+            </div>
+            <div *ngIf="configService.user">Show &nbsp;
+                <button class="btn btn-primary" style="font-size:8px" (click)="addNtnl()">Add Bar</button>
+            </div>
+        </as-split-area>
+    </as-split>
+</div>

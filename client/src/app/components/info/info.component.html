@@ -1,0 +1,35 @@
+<div #infoPane id="infoPaneAllResults" class="info-pane" *ngIf="jsonData.results?.plants?.features?.length > 0 || jsonData.landscape?.plants?.features?.length > 0 || (jsonData.ntnl?.plants?.features?.length > 0 && jsonData?.criteria?.ntnl); else elseBlock">
+    <div class="hint">Select below to locate on map.</div>
+    <div #infoPane id="infoPaneResults" class="info-pane" *ngIf="jsonData.results?.plants?.features?.length > 0">
+        <button #scrollBottom id="scroll-bottom1" class="btn btn-scroll" href="#" title="Scroll Down" (click)="gotoBottom('infoPane')">
+            <i [ngClass]="{'fa':true, 'fa-chevron-circle-down':true }"></i></button>
+        <info-set [version]="this.version" [results]="jsonData.results" groupColor="#56b033c0" name="plants"></info-set>
+        <div *ngIf="jsonData?.criteria?.clones">
+            <ng-template [ngIf]="jsonData['clones']['plants'].features.length < 1 && jsonData['results']['plants'].features.length > 1" [ngIfElse]="elseBlock">
+                <div class="hint">Clone data only available for single accession result.</div>
+            </ng-template>
+            <ng-template #elseBlock>
+                <info-set [version]="this.version" [results]="jsonData.clones" groupColor="#b898d0c0" name="clones"></info-set>
+            </ng-template>
+        </div>
+    </div>
+    <div #infoPane id="infoPaneLandscape" class="info-pane" *ngIf="jsonData.landscape?.plants?.features?.length > 0">
+        <button #scrollBottom id="scroll-bottom2" class="btn btn-scroll" href="#" title="Scroll Down" (click)="gotoBottom('infoPane')">
+            <i [ngClass]="{'fa':true, 'fa-chevron-circle-down':true }"></i></button>
+        <info-set [version]="this.version" [results]="jsonData.landscape" groupColor="DarkOrange" name="kept, unaccessioned"></info-set>
+    </div>
+    <div #infoPane id="infoPaneNtnl" class="info-pane" *ngIf="jsonData.ntnl?.plants?.features?.length > 0 && jsonData?.criteria?.ntnl && configService.user != null">
+        <button #scrollBottom id="scroll-bottom3" class="btn btn-scroll" href="#" title="Scroll Down" (click)="gotoBottom('infoPane')">
+            <i [ngClass]="{'fa':true, 'fa-chevron-circle-down':true }"></i></button>
+        <div *ngIf="jsonData?.criteria?.ntnl">
+            <info-set [version]="this.version" [results]="jsonData.ntnl" groupColor="Black" name="ntnl"></info-set>
+        </div>
+    </div>
+    <!--    <h2 style="background-color: #56b033c0;">-->
+    <button #scrollTop id="scroll-top" style="background-color: #56b033c0;" class="btn btn-scroll" href="#" title="Scroll Up" (click)="gotoTop('infoPane')">
+        <i [ngClass]="{'fa':true, 'fa-chevron-circle-up':true }"></i></button>
+</div>
+<!--<h2 *ngIf="plantDataService.jsonData.results?.plants?.features?.length == 0 && (plantDataService.jsonData.results?.ntnl?.features?.length == 0 || !plantDataService.jsonData?.criteria?.ntnl)">No results</h2>-->
+<ng-template #elseBlock>No results</ng-template>
+<!--CRIT: {{plantDataService.jsonData?.criteria?.ntnl}}-->
+<!--LEN: {{plantDataService.jsonData.ntnl?.plants?.features?.length }}-->

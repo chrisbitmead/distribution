@@ -1,0 +1,15 @@
+import java.time.LocalDate
+
+model {
+    String message
+    LocalDate mapDate
+    Long mapActionId
+    Long stocktakeActionId
+}
+json {
+    message message
+    map_date mapDate
+    stocktake_action_id stocktakeActionId
+    map_action_id mapActionId
+    success (message ? false : true)
+}

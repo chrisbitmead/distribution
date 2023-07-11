@@ -1,0 +1,8 @@
+<div id="group-{{item.features[0].properties['item_id']}}" [ngClass]="{'selected':isSelected()}" (click)="highlight()">
+<!-- Auto scroll: the users didn't like it    [class.scrolled]="isSelected() && !isClicked() && document.getElementById('group-' + item.features[0].properties['item_id']).scrollIntoView()">-->
+<div >
+    <span *ngIf="mapped" class="section"><i style="color:{{groupColor}};" class="fa fa-bullseye"></i></span>
+    <span *ngIf="!mapped" class="section"><i style="color:{{groupColor}};" class="fa fa-square-o"></i></span>
+    {{item.groupName}} at {{item.features.length}} location{{item.features.length === 1 ?'':'s'}}, {{item.qty}} plant{{item.total === 1 ?'':'s'}}
+  </div>
+</div>

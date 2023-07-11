@@ -1,0 +1,11 @@
+<div id="item-{{item.properties.item_id}}" [ngClass]="{'selected':item.selected}" (click)="highlight()">
+<!-- Auto scroll: the users didn't like it [class.scrolled]="item.selected && !item.clicked && document.getElementById('item-' + item.properties.item_id).scrollIntoView()">-->
+  <div>
+    <span class="section">
+      <i [innerHTML]="plantdataService.getIcon(item).options.html | safe: 'html'" style="color:{{groupColor}};" class="fa fa-bullseye"></i>
+      {{item.properties.name}}
+    </span>&nbsp;
+<!--    {{item.properties.taxon_name}}-->
+<!--      {{item.properties.label}}-->
+  </div>
+</div>

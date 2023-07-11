@@ -1,0 +1,7 @@
+model {
+    String message
+}
+json {
+    message message
+    success (message ? false : true)
+}

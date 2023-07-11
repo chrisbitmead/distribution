@@ -1,0 +1,7 @@
+model {
+	List<String> data
+}
+
+json {
+    data data
+}

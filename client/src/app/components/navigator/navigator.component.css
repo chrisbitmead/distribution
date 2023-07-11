@@ -1,0 +1,28 @@
+
+.space .form-row .form-group .form-check .form-control {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    margin-left: 20px;
+}
+
+.navigator-pane {
+    margin: 2px 0 0 10px;
+    margin-right: 10px;
+}
+
+.form-label {
+    margin-top: 5px;
+    margin-bottom: 0px;
+    margin-left: 10px;
+}
+
+.form-check {
+    margin-top: 5px;
+    margin-bottom: 0px;
+    margin-left: 20px;
+}
+
+.btn {
+    vertical-align: baseline;
+}
+

@@ -10,6 +10,7 @@ import * as classifyPoint from 'robust-point-in-polygon';
 import * as moment from 'moment';
 import {TriggerService} from '../trigger/trigger.service';
 import {DivIcon, LatLng, Marker} from 'leaflet';
+import {PlantPopupComponent} from '../../components/plant-popup/plant-popup.component';
 
 @Injectable()
 export class PlantdataService {
@@ -24,6 +25,7 @@ export class PlantdataService {
     static sectionDefaultColor = '#c7fceb';
     static sectionFoundColors: any = {results: '#e8ccaf', clones: '#e8ccaf', section_context: '#e8ccaf', landscape: '#e8ccaf', ntnl: '#e8ccaf'};
     static sectionSelectedColors: any = {results: '#e8af73', clones: '#e8af73', section_context: '#e8af73', landscape: '#e8af73', ntnl: '#e8af73'};
+    data: any;
 
     // The vanish symbol for unmapped
     unmappedIcon = L.divIcon({ html: '<i class="mapIconCls">&#xE018;</i>', iconSize: [20, 20], iconAnchor: [10, 10], className: 'myDivIcon' })
@@ -144,7 +146,7 @@ export class PlantdataService {
     p0Icons = {results: this.iconP0, clones: this.iconP0, section_context: this.iconSecContext}
 
 
-    plantLayer = {};
+    plantLayer: L.LayerGroup = null;
     featureLayerById = {};
     sections: L.GeoJSON;
     // There can be multiple layers per section because some map sections
@@ -179,22 +181,38 @@ export class PlantdataService {
         this.clear();
     }
 
-    redrawMap(zoom: boolean, plantPopupClass: Type<any>) {
-        console.log('redrawMap');
+    addAlaData(name: string) {
         const that = this;
-        // const layers = this.resetSectionsAllGroups();
-        this.removeAllPlantGroups();
-        this.jsonData.criteria?.groups?.forEach(function (group) {
-            // We create an empty layer even when mapped is not selected, in case you start mapping stuff.
-            that.plantLayer[group] = L.layerGroup([]);
-            that.featureLayerById[group] = {};
-            that.addPlantGroup(group, plantPopupClass);
+        const uri = ConfigService.context() + '/assets/' + name + '.json';
+        that.http.get(uri).subscribe(data => {
+            that.data = data;
+            that.addPlants(name, PlantPopupComponent, data);
         });
-        // if (zoom) {
-        //     this.mapService.fitFeatures(layers, 21);
-        // }
     }
 
+    removeAlaData(name: string) {
+        this.mapService.map.removeLayer(this.plantLayer);
+    }
+
+
+    addPlants(group: string, plantPopupClass: Type<any>, data): L.GeoJSON {
+        const that = this;
+        // if (that.jsonData[group]) {
+        // We create an empty layer even when mapped is not selected, in case you start mapping stuff.
+        this.plantLayer = L.layerGroup([]);
+        // this.featureLayerById[group] = {};
+        if (data.features.length > 0) {
+            data.features?.forEach(function (feature) {
+                const latlng = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                const layer = that.createMarker(feature, latlng, plantPopupClass)
+                layer.feature = feature;
+                that.plantLayer.addLayer(layer);
+            });
+            this.plantLayer.addTo(that.mapService.map);
+        }
+        return this.plantLayer;
+        // }
+    }
     zoom() {
         // const layers = this.findLayersBySections(this.findAllFoundSections());
         // this.mapService.fitFeatures(layers, 21);
@@ -222,35 +240,17 @@ export class PlantdataService {
         c['groups'] = [PlantdataService.RESULT];
         c['mappedUnmapped'] = [];
         this.jsonData['criteria'] = c;
-        this.summariseAll(this.jsonData);
         that.triggerService.redraw.emit(true);
         return c;
-    }
-
-    addPlantGroup(group: string, plantPopupClass: Type<any>): L.GeoJSON {
-        const that = this;
-        if (that.jsonData[group]) {
-            // We create an empty layer even when mapped is not selected, in case you start mapping stuff.
-            this.plantLayer[group] = L.layerGroup([]);
-            this.featureLayerById[group] = {};
-            if (that.jsonData[group].plants?.features.length > 0) {
-                that.jsonData[group].plants?.features?.forEach(function (feature) {
-                    const latlng = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                    const layer = that.createMarker(feature, latlng, plantPopupClass);
-                    that.mapNewPlant(layer, feature);
-                });
-                this.plantLayer[group].addTo(that.mapService.map);
-            }
-            return this.plantLayer[group];
-        }
     }
 
     getIcon(feature): DivIcon {
         if (!feature) {
             console.log('unknown');
         }
-        const icons = this.basicIcons[feature.group];
-        return icons.mass;
+        // const icons = this.basicIcons[feature.group];
+        return this.basicIcons.results.tree1;
+        // return icons.mass;
     }
 
     getIconSelected(feature): DivIcon {
@@ -296,21 +296,6 @@ export class PlantdataService {
         return marker;
     }
 
-    removePlantGroup(group: string) {
-        if (this.plantLayer[group]) {
-            this.mapService.removeLayer(this.plantLayer[group]);
-            this.plantLayer[group].clearLayers();
-            delete this.plantLayer[group];
-        }
-    }
-
-    removeAllPlantGroups() {
-        const that = this;
-        PlantdataService.GROUPS.forEach(function (group) {
-            that.removePlantGroup(group);
-        });
-    }
-
     // setSections(layer: any) {
     //     this.sections = layer;
     //     this.namedSections = this.sectionNames();
@@ -326,141 +311,6 @@ export class PlantdataService {
             return null;
         }
     };
-
-    // removeAccession(accession: string, group: string): Marker {
-    //     console.log('Removing accession: ' + accession);
-    //     if (this.plantLayerByAccession[group]) {
-    //         const layer: Marker = this.plantLayerByAccession[group][accession];
-    //         this.plantLayerByAccession[group].removeLayer(layer);
-    //     } else {
-    //         console.log('ERROR: trying to find layer by accession when layer not set. ')
-    //         return null;
-    //     }
-    // };
-
-    // findLayersBySection(sectionName: string): any {
-    //     if (this.namedSections) {
-    //         const layers: any[] = this.namedSections[sectionName];
-    //         return layers;
-    //     }
-    //     return null
-    // }
-    //
-    // setAllSections(style: any, content: any) {
-    //     if (this.sections) {
-    //         this.sections.eachLayer(function (layer: any) {
-    //             layer.setStyle(style);
-    //             if (content) {
-    //                 layer.bindPopup(content(layer));
-    //             }
-    //         });
-    //     }
-    // }
-    //
-    // findAllFoundSections() {
-    //     const that = this;
-    //     const rtn = new Set<string>();
-    //     this.jsonData.criteria.groups.forEach(function (group) {
-    //         that.jsonData.criteria.mappedUnmapped.forEach(function (mUm) {
-    //             if (that.jsonData[group] && that.jsonData[group][mUm + 'Sections']) {
-    //                 that.jsonData[group][mUm + 'Sections'].forEach(rtn.add, rtn);
-    //                 // layers = layers.concat(that.colorSections(that.jsonData[group][mUm + 'Sections'], {
-    //                 //     fillColor: PlantdataService.sectionFoundColors[group],
-    //                 //     fillOpacity: '1.0'
-    //                 // }));
-    //             }
-    //         });
-    //     });
-    //     return Array.from(rtn);
-    // }
-
-    // allDisplayedSectionsWithGroup(): Array<any> {
-    //     const that = this;
-    //     let rtn = [];
-    //     this.jsonData?.criteria?.groups?.forEach(function (group) {
-    //         if (group != 'ntnl' || that?.jsonData?.criteria?.ntnl) {
-    //             that.jsonData.criteria.mappedUnmapped.forEach(function (mUm) {
-    //                 if (that.jsonData[group] && that.jsonData[group][mUm + 'Sections']) {
-    //                     rtn = rtn.concat({ sections: that.jsonData[group][mUm + 'Sections'], group: group });
-    //                 }
-    //             });
-    //         }
-    //     });
-    //     return rtn;
-    // }
-
-    // allDisplayedSections() {
-    //     return this.allDisplayedSectionsWithGroup().map(function (f) { return f.section; });
-    // }
-
-    // allDisplayedLayers() {
-    //     return this.findLayersBySections(this.allDisplayedSections());
-    // }
-
-    // fitDisplayed() {
-    //     this.mapService.fitFeatures(this.allDisplayedLayers(), 21);
-    // }
-
-    // resetSectionsAllGroups() {
-    //     const that = this;
-    //     this.setAllSections({
-    //             fillColor: PlantdataService.sectionDefaultColor,
-    //             fillOpacity: '0.2'
-    //         },
-    //         null
-    //     );
-    //     let layers: any[] = [];
-    //     // this.allDisplayedSections().forEach(function (section) {
-    //     this.allDisplayedSectionsWithGroup().map(function (f) {
-    //         layers = layers.concat(that.colorSections(f.sections, {
-    //             fillColor: PlantdataService.sectionFoundColors[f.group],
-    //             fillOpacity: '1.0'
-    //         }));
-    //
-    //     });
-    //     // });
-    //     // this.jsonData?.criteria?.groups?.forEach(function (group) {
-    //     //     that.jsonData.criteria.mappedUnmapped.forEach(function (mUm) {
-    //     //         if (that.jsonData[group] && that.jsonData[group][mUm + 'Sections']) {
-    //     //             layers = layers.concat(that.colorSections(that.jsonData[group][mUm + 'Sections'], {
-    //     //                 fillColor: PlantdataService.sectionFoundColors[group],
-    //     //                 fillOpacity: '1.0'
-    //     //             }));
-    //     //         }
-    //     //     });
-    //     // });
-    //     return layers;
-    // }
-
-    // findLayersBySections(sections) {
-    //     const that = this;
-    //     let layers: any[] = [];
-    //     sections.forEach(function (section) {
-    //         const sectionLayers = that.findLayersBySection(section);
-    //         if (sectionLayers) {
-    //             layers = layers.concat(sectionLayers);
-    //         }
-    //     });
-    //     return layers;
-    // }
-
-    // colorSections(sections, style: any) {
-    //     const that = this;
-    //     const layers: any[] = this.findLayersBySections(sections);
-    //     this.setStyle(layers, style);
-    //     return layers;
-    // }
-    //
-    // highlightSections(sections, group: string) {
-    //     const style = {
-    //         fillColor: PlantdataService.sectionSelectedColors[group]
-    //     };
-    //     const that = this;
-    //     this.resetSectionsAllGroups();
-    //     this.colorSections(sections, style);
-    //     const layers: any[] = this.findLayersBySections(sections);
-    //     return layers;
-    // }
 
     resetAllPlants() {
         console.log('resetAllPlants');
@@ -575,83 +425,5 @@ export class PlantdataService {
             });
         }
         return false;
-    }
-
-    // pointIsInSection(section: string, coordinate: LatLng): boolean {
-    //     const that = this;
-    //     const layers = that.findLayersBySection(section);
-    //     if (layers) {
-    //         return layers.find(function (layer) {
-    //             return that.pointIsInLayer(layer, coordinate);
-    //         });
-    //     }
-    //     return false;
-    // }
-
-    // sectionForPoint(coordinate: LatLng): string {
-    //     const that = this;
-    //     for (let key of Object.keys(this.namedSections)) {
-    //         const layers = that.findLayersBySection(key);
-    //         if (layers) {
-    //             if (layers.find(function (layer) {
-    //                 return that.pointIsInLayer(layer, coordinate);
-    //             })) {
-    //                 return key;
-    //             }
-    //         }
-    //     }
-    //     return null;
-    // }
-
-    // private sectionNames(): any {
-    //     let layer: any;
-    //     const layers: L.Layer[] = this.sections.getLayers();
-    //     const layerNameMap: any = {};
-    //     for (let i = layers.length - 1; i >= 0; i--) {
-    //         layer = layers[i];
-    //         // log("*** adding -- " + layer.feature.properties.name);
-    //         if (layerNameMap[layer.feature.properties.name]) {
-    //             layerNameMap[layer.feature.properties.name].push(layer);
-    //         } else {
-    //             layerNameMap[layer.feature.properties.name] = [layer];
-    //         }
-    //     }
-    //     return layerNameMap
-    // }
-
-    mapNewPlant(layer: Marker, feature) {
-        const that = this;
-        layer.feature = feature;
-        this.plantLayer[feature.group].addLayer(layer);
-        const id = layer.feature.properties.id;
-        if (this.featureLayerById[feature.group][id]) {
-            that.plantLayer[feature.group].removeLayer(this.featureLayerById[feature.group][id]);
-        }
-        this.featureLayerById[feature.group][id] = layer;
-        this.plantLayer[feature.group].addLayer(layer);
-    }
-
-    unmapPlant(feature) {
-        const that = this;
-        const id = feature.properties.id;
-        const layer: Marker = this.featureLayerById[feature.group][id];
-        that.plantLayer[feature.group].removeLayer(layer);
-        delete this.featureLayerById[feature.group][id];
-    }
-
-    summarise(data, group: string) {
-        data.plants.features.forEach(function (f) {
-           f.group = group;
-        });
-        return data;
-    }
-
-    summariseAll(jsonData) {
-        const that = this;
-        PlantdataService.GROUPS.forEach(function (group) {
-            if (jsonData[group]) {
-                that.summarise(jsonData[group], group);
-            }
-        });
     }
 }

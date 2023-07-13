@@ -24,8 +24,6 @@ import { PlantPopupComponent } from './components/plant-popup/plant-popup.compon
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
-import { StockTakeComponent } from './components/stocktake/stocktake.component';
-import { UnmapComponent } from './components/unmap/unmap.component';
 import { InfoSetComponent } from './components/info-set/info-set.component';
 import {AngularSplitModule} from 'angular-split';
 import { ConfirmComponent } from './components/confirm/confirm.component';
@@ -51,8 +49,6 @@ export function initConfig(config: AppConfig) {
         GroupComponent,
         LayoutComponent,
         PlantPopupComponent,
-        StockTakeComponent,
-        UnmapComponent,
         InfoSetComponent,
         ConfirmComponent,
         NewNtnlComponent,

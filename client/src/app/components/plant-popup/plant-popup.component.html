@@ -1,46 +1,8 @@
-<i>
-  {{feature.properties.name}}
-</i>
+basis of record:  {{feature.properties.basisOfRecord}}
 <br/>
-section: {{feature.properties.section}}
-<div>
-    <button *ngIf="canStocktake" (click)="stocktake(feature.properties.item_sit_id)" title="Found" tooltip="Found">
-        <i style="font-style:normal;font-size:15px;">&#x2705;</i>
-    </button>
-    <button *ngIf="canStocktake" (click)="unmap(feature.properties.item_sit_id)" title="Unmap" tooltip="Unmap">
-        <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;">&#xE018;</i>
-    </button>
+catalog number: {{feature.properties.catalogNumber}}
+<br/>
+record id:  {{feature.properties.recordID}}
+<br/>
+scientific name: {{feature.properties.scientificName}}
 
-    <button *ngIf="canStocktake" (click)="updateNtnlStatus(feature, 'Removed')" title="Removed" tooltip="Removed">
-        <img src="{{context}}/images/icons/bin_closed.png"/>
-        <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-    </button>
-    <ng-template [ngIf]="feature.properties.status !== 'Keep, unaccessioned'">
-        <button *ngIf="canStocktake" (click)="updateNtnlStatus(feature, 'Re-tagged')" title="Re-tagged" tooltip="Re-tagged">
-            <img width="16" height="16" src="{{context}}/images/icons/tag_blue2.png"/>
-            <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-        </button>
-        <button *ngIf="canStocktake" (click)="updateNtnlStatus(feature, 'Keep, unaccessioned')" title="Keep, unaccessioned" tooltip="Keep, unaccessioned">
-            <img width="16" height="16" src="{{context}}/images/icons/landscape.jpg"/>
-            <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-        </button>
-        <button *ngIf="canStocktake" (click)="updateNtnlStatus(feature, 'Accessioned')" title="Accessioned" tooltip="Accessioned">
-            <img width="16" height="16" src="{{context}}/images/icons/accession.png"/>
-            <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-        </button>
-        <button *ngIf="canStocktake" (click)="updateNtnlStatus(feature, 'Other')" title="Other" tooltip="Other">
-            <img src="{{context}}/images/icons/question.png"/>
-            <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-        </button>
-    </ng-template>
-    <button *ngIf="canStocktake" (click)="unmap(feature.properties.item_sit_id)" title="Unmap" tooltip="Unmap">
-        <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;">&#xE018;</i>
-    </button>
-    <button *ngIf="canStocktake" (click)="requestTag(feature.properties.item_sit_id)" title="Tag required" tooltip="Tag required">
-        <img width="16" height="16" src="{{context}}/images/icons/tag_blue.png"/>
-        <i style="font-family:'ANBGmappingfont';font-style:normal;font-size:15px;"></i>
-    </button>
-    <button *ngIf="canStocktake && feature.geometryhistory && feature.geometryhistory.length > 0" (click)="undoMove(feature)" title="Undo Move" tooltip="Undo the last move">
-        <i style="font-style:normal;font-size:15px;">&#x238c;</i>
-    </button>
-</div>

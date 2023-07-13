@@ -62,6 +62,13 @@ export class NavigatorComponent implements OnInit, OnChanges {
         this.findingPlants = false;
     }
 
+    addAlaData(name: string) {
+        if (this.ala1) {
+            this.plantdataService.addAlaData(name);
+        } else {
+            this.plantdataService.removeAlaData(name);
+        }
+    }
     ngOnInit(): void {
         const that = this;
         this.mapService.disableMouseEvent('goto');
@@ -95,21 +102,7 @@ export class NavigatorComponent implements OnInit, OnChanges {
                 if (that.section || that.determination) {
                     console.log('routing: ' + params);
                     this.findingPlants = true;
-                    that.searchService.find(that.section, that.determination, null, null, null, that.max).subscribe(jsonData => {
-                        that.plantdataService.summariseAll(jsonData);
-                        that.plantdataService.removeAllPlantGroups();
-                        jsonData['criteria'] = {};
-                        that.getSearchCriteria(jsonData['criteria']);
-                        // On initial entry to the screen, we can't go ahead and start
-                        // drawing the map until after we've loaded roads and sections etc.
-                        // On later routing, this doesn't matter.
-                        that.indexComponent.startupComplete.then((values) => {
-                            that.triggerService.remodel.emit(jsonData);
-                            // this.triggerService.remodel.emit(zoom);
-                            that.triggerService.redraw.emit(true);
-                            that.findingPlants = false;
-                        });
-                    });
+                    // here was stuff
                 }
             });
         });

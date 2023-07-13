@@ -97,9 +97,6 @@ export class IndexComponent implements OnInit {
 
     ngOnInit(): void {
         const that = this;
-        this.triggerService.redraw.subscribe( (zoom) => {
-            that.plantdataService.redrawMap(zoom, PlantPopupComponent)
-        });
         this.triggerService.remodel.subscribe( (jsonData: any) => {
             console.log('remodel');
             that.version = that.version + 1;
@@ -284,80 +281,8 @@ export class IndexComponent implements OnInit {
         }
     }
 
-    addNtnl() {
-        const that = this;
-
-        // this.plantdataService.makeSectionsUnclickable();
-        this.snackBar.open('Locate the plant on the map', 'Map', {
-            duration: 2000
-        });
-        this.mapService.map.on('click', function (e: LeafletMouseEvent) {
-            that.mapService.map.off('click');
-            // that.plantdataService.makeSectionsClickable();
-            // const sectionForPoint = that.plantdataService.sectionForPoint(e.latlng);
-            const sectionForPoint = 'abc';
-            // that.snackBar.open('Located in section: ' + sectionForPoint, 'Map', {
-            //     duration: 2000
-            // });
-            // if (!that.plantdataService.pointIsInSection(that.item.properties.section, e.latlng)) {
-            that.bottomSheet.open(NewNtnlComponent, {
-                data: {
-                    sectionCode: 'abc',
-                    action: function (name, notes) {
-                        that.placeMapMarker(e, name, notes, e.latlng.lat, e.latlng.lng);
-                    },
-                    argument: e
-                }
-            });
-            // } else {
-            //     that.placeMapMarker(e);
-            // }
-        });
-    }
-
     legendHide() {
         this.legendSee = !this.legendSee
-    }
-
-    placeMapMarker(e, name, notes, lat, lng) {
-        const that = this;
-        this.livingService.newNtnl(name, notes, lat, lng).subscribe(jsonData => {
-            const message = jsonData[
-                'success'] ? 'successful' : jsonData['message'];
-            if (jsonData['success']) {
-                that.snackBar.open(message, 'New NTNL created', {duration: 2000});
-                // if (!that.plantdataService.jsonData[PlantdataService.NTNL]) {
-                //     that.plantdataService.jsonData[PlantdataService.NTNL] = {plants: {features: []}};
-                // }
-                const f = jsonData['ntnl'];
-                that.plantdataService.jsonData[PlantdataService.RESULT].plants.features.push(f);
-
-                that.plantdataService.summariseAll(that.plantdataService.jsonData);
-                const marker = that.plantdataService.createMarker(f, e.latlng, PlantPopupComponent).addTo(that.mapService.map);
-                that.plantdataService.mapNewPlant(marker, jsonData[PlantdataService.RESULT]);
-                that.triggerService.remodel.emit(that.plantdataService.jsonData);
-
-            } else {
-                that.snackBar.open(message, message, {duration: 2000});
-            }
-
-        });
-        // that.livingService.moveMarker(that.item.properties.item_sit_id, e.latlng.lat, e.latlng.lng, null, null).subscribe(jsonData => {
-        //     const message = jsonData[
-        //         'success'] ? 'successful' : jsonData['message']
-        //     that.snackBar.open(message, 'Map position placed', {duration: 2000});
-        //     if (jsonData['success']) {
-        //         that.item.properties.map_date = new Date();
-        //         that.item.unmapped = false;
-                // Differing standards, GeoJSON uses [ longitude, latitude ] aka X, Y
-                // but leaflet uses longitude, latitude
-                // that.item.geometry.coordinates = [e.latlng.lng, e.latlng.lat];
-                // that.plantdataService.summariseAll(that.plantdataService.jsonData);
-                // const marker = that.plantdataService.createMarker(that.item, e.latlng, PlantPopupComponent).addTo(that.mapService.map);
-                // that.plantdataService.mapNewPlant(marker, that.item);
-                // that.triggerService.remodel.emit(that.plantdataService.jsonData);
-            // }
-        // });
     }
 
 

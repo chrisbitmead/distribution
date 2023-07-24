@@ -126,7 +126,7 @@ export class NavigatorComponent implements OnInit, OnChanges {
 
     austBoundaryNames(f) {
         // return (f.properties['ISLAND_NAM'] ? (f.properties['ISLAND_NAM']) : '');
-        return f.properties['STA_CODE'] + (f.properties['ISLAND_NAM'] ? (': ' + f.properties['ISLAND_NAM']) : '');
+        return f.properties['STATE_ABBR'] + (f.properties['ISLAND_GRO'] ? (': ' + f.properties['ISLAND_GRO']) : '');
     }
 
     alaNames(f){

@@ -6,6 +6,7 @@ import {ItemComponent} from '../item/item.component';
 import {InfoSetComponent} from '../info-set/info-set.component';
 import {ConfigService} from "../../services/config/config.service";
 import {TriggerService} from "../../services/trigger/trigger.service";
+import {MapService} from '../../services/map/map.service';
 // import { CommonModule } from '@angular/common';
 // import { BrowserModule } from '@angular/platform-browser';
 
@@ -24,15 +25,19 @@ export class InfoComponent implements OnInit, OnDestroy {
     @ViewChild('scrollBottom') private scrollBottom: ElementRef;
     @ViewChild('scrollTop') private scrollTop: ElementRef;
     private advancedSub: Subscription;
+    private selectedSub: Subscription;
     selectedItem: ItemComponent;
 
     constructor(private search: SearchService,
                 public plantdataService: PlantdataService,
                 public configService: ConfigService,
+                public mapService: MapService,
                 public triggerService: TriggerService) {
     }
 
     ngOnInit() {
+        this.selectedSub = this.mapService.selectedEvent.subscribe( () => {
+        });
         this.triggerService.scrollToTop.subscribe((zoom) => {
             this.gotoTop('infoPane');
         });
@@ -51,6 +56,7 @@ export class InfoComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.advancedSub.unsubscribe();
+        this.selectedSub.unsubscribe();
     }
 
     selectItem(item: ItemComponent) {

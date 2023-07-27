@@ -371,45 +371,6 @@ export class PlantdataService {
         return obs;
     }
 
-    // makeSectionsUnclickable() {
-    //     const that = this;
-    //     Object.keys(this.sectionData).forEach(function (section) {
-    //         // const section = feature.properties.name;
-    //         const layers = that.findLayersBySection(section);
-    //         // const feature = that.sectionData[section];
-    //         if (layers) {
-    //             layers.forEach(function (layer) {
-    //                 layer.unbindPopup();
-    //                 layer.unbindTooltip();
-    //                 layer.off('click');
-    //             });
-    //         }
-    //     });
-    // }
-
-    // makeSectionsClickable() {
-    //     const that = this;
-    //     Object.keys(this.sectionData).forEach(function (section) {
-    //         // const section = feature.properties.name;
-    //         const layers = that.findLayersBySection(section);
-    //         const feature = that.sectionData[section];
-    //         if (layers) {
-    //             layers.forEach(function (layer) {
-    //                 if (feature.theme) {
-    //                     const description = '<b>section ' + section + ':</b> ' + feature.name + '<br><b>Theme(s):</b> ' + feature.theme + '<br><b>Purpose:</b> ' + feature.purpose;
-    //                     layer.bindPopup(description);
-    //                     layer.on('click', event1 => {
-    //                         that.sectionClick.emit(section);
-    //                     })
-    //                     layer.bindTooltip('section ' + section + ':' + feature.name, {className: 'tt', direction: 'right'});
-    //                 } else {
-    //                     layer.bindPopup('section ' + feature.name);
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
-
     pointIsInPolygon(polygon, coordinate: LatLng) {
         const latLngs = polygon.coordinates[0].map(ll => [ll[1], ll[0]]);
         return classifyPoint(latLngs, [coordinate.lat, coordinate.lng]) <= 0;

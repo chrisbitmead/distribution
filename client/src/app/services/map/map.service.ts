@@ -1,5 +1,5 @@
 import {Observable} from 'rxjs';
-import {ComponentFactoryResolver, Injectable, Injector} from '@angular/core';
+import {ComponentFactoryResolver, EventEmitter, Injectable, Injector, Output} from '@angular/core';
 import * as L from 'leaflet';
 import {LatLng} from 'leaflet';
 import 'leaflet.locatecontrol'
@@ -15,6 +15,46 @@ import {LivingService} from '../living/living.service';
 
 @Injectable()
 export class MapService {
+    static  colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+    static stylelayer = {
+        defecto: function (f) {
+            return {
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7,
+                fillColor: MapService.colors[f.properties.colorIndex]
+            }
+        },
+        // reset: function (f) {
+        //     return {
+        //         color: 'red',
+        //         opacity: 0.4,
+        //         weight: 1
+        //     }
+        // },
+        highlight: function(f) {
+            return {
+                weight: 5,
+                color: 'red',
+                dashArray: '',
+                fillOpacity: 0.7
+            }
+        },
+        selected: function(f) {
+            return {
+                weight: 2,
+                opacity: 1,
+                color: 'blue',
+                dashArray: '3',
+                fillOpacity: 0.7,
+                fillColor: MapService.colors[f.properties.colorIndex]
+            }
+        }
+    }
+    @Output() selectedEvent = new EventEmitter<any>();
+
     public map: L.Map;
     public baseMaps: any;
     private boundingLayer: L.GeoJSON;
@@ -23,12 +63,19 @@ export class MapService {
     http: HttpClient;
     configService: ConfigService;
     // These two variables aren't really used, but can be fun for debugging.
-    private autoBoundsRect
-    private currentBoundsRect
+    private autoBoundsRect;
+    private currentBoundsRect;
     // IBRA7RegionLayer: L.Layer;
     // IBRA7SubregionLayer: L.Layer;
     // IMCRALayer: L.Layer;
-    overlays = new Map<string, L.Layer>();
+    private overlays = new Map<string, L.Layer>();
+    public featuresSelected = [];
+    // private info;
+    // private detailsselected;
+    private arrayBounds = [];
+
+
+
 
     constructor(http: HttpClient,
                 private livingService: LivingService,
@@ -39,13 +86,35 @@ export class MapService {
             OpenStreetMap: new L.TileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="https://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
             })
-            // Esri: new L.TileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-            //     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
-            // }),
-            // CartoDB: new L.TileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-            //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
-            // })
         };
+        // this.info = L.control({
+        //     position: 'bottomleft'
+        // });
+        // this.info.onAdd = function (map) {
+        //     this._div = L.DomUtil.create('div', 'info');
+        //     this.update();
+        //     return this._div;
+        // };
+        //
+        // this.info.update = function (properties) {
+        //     this._div.innerHTML =
+        //
+        //         '<h4>Properties</h4>' + (properties ?
+        //             `
+        //         Aantal: ${properties.amount}<br>
+        //         Gemeente: ${properties.municipality}<br>
+        //         Provincie:${properties.province}<br>
+        //         Plaats:${properties.town}<br>
+        //         Postcode:${properties.zipcode}
+        //         ` : 'Hover over a state');
+        // };
+        // this.detailsselected = L.control();
+        // this.detailsselected.onAdd = function (map) {
+        //     this._div = L.DomUtil.create('div', 'info scroller');
+        //     this.update();
+        //     return this._div;
+        // };
+
     }
 
     makeMap() {
@@ -61,10 +130,6 @@ export class MapService {
         L.control.zoom({position: 'topright'}).addTo(this.map);
         L.control.scale().addTo(this.map);
         L.control.locate({position: 'topright'}).addTo(this.map);
-
-        // const miniMapLayer = new L.TileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="https://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
-        // });
         const self = this;
         this.map.on('zoomend', function (event) {
             self.zoomEndHandler();
@@ -117,6 +182,54 @@ export class MapService {
         });
     }
 
+    public removerlayers(feature, callback, layer, defecto) {
+        this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
+        callback(layer, defecto);
+    }
+
+    public addLayers(feature, callback, layer, highlight) {
+        this.featuresSelected.push({
+            publicDisplayName: feature.properties.publicDisplayName,
+            feature: feature
+        });
+        callback(layer, highlight);
+    }
+
+    public addBounds(layer) {
+        this.arrayBounds.push(layer.getBounds());
+    }
+
+    public removeBounds(layer) {
+        this.arrayBounds = this.arrayBounds.filter(bounds => bounds !== layer.getBounds());
+    }
+
+    public checkExistsLayers(feature: { properties: { publicDisplayName: any; }; }): boolean {
+        let result = false
+        for (let i = 0; i < this.featuresSelected.length; i++) {
+            if (this.featuresSelected[i].publicDisplayName === feature.properties.publicDisplayName) {
+                result = true;
+                break;
+            }
+        };
+        return result
+    }
+
+    public zoomToFeature(e) {
+        const layer = e.target;
+        const feature = e.target.feature;
+
+        if (this.checkExistsLayers(feature)) {
+            this.removerlayers(feature, this.setStyleLayer, layer, MapService.stylelayer.defecto)
+            this.removeBounds(layer)
+
+        } else {
+            this.addLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.highlight)
+            this.addBounds(layer)
+        }
+        this.map.fitBounds(this.arrayBounds);
+        // this.detailsselected.update(this.featuresSelected)
+    }
+
     fitFeatures(layers: any[], maxZoom: number, zoomEvenIfWithinBoundsAlready: boolean = true) {
         if (layers.length === 0) {
             return // nothing displayed right now
@@ -144,7 +257,6 @@ export class MapService {
                 // this.map.fitBounds(bounds);
             }
         } else {
-            // console.log("BZ: " + this.map.getZoom() + " " + this.map.getBoundsZoom(bounds, true) + "  " + this.map.getBoundsZoom(bounds, false));
             if (bounds.isValid() && this.map.getZoom() < this.map.getBoundsZoom(bounds) && maxZoom > this.map.getZoom()) {
                 this.map.fitBounds(bounds, {padding: new L.Point(50, 50), maxZoom: maxZoom});
             }
@@ -253,7 +365,8 @@ export class MapService {
         }
     }
 
-    addLayerTopo(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, propertyName, styleObject: any, onFeature: any, pointTo: any): Observable<any> {
+    addLayerTopo(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, propertyName,
+                 styleObject: any, onFeature: any, pointTo: any): Observable<any> {
         const that = this;
         const observable = new Observable(function subscribe(obs) {
             if (styleObject == null) {
@@ -310,9 +423,39 @@ export class MapService {
         return observable;
     }
 
+    // public redraw(b) {
+    //     geojson.eachLayer(function (layer) {
+    //         if (layer.feature.properties.zipcode == zipcodes[b]) {
+    //             selectTypeaheadFeature(layer)
+    //         }
+    //     })
+    // }
+
+    public setStyleLayer(layer, styleSelected) {
+        layer.setStyle(styleSelected(layer.feature));
+    }
+
+    public highlightFeature(e) {
+        const layer = e.target;
+        this.setStyleLayer(layer, MapService.stylelayer.highlight);
+        // layer.setStyle(MapService.stylelayer.highlight(layer.feature));
+        // this.info.update(layer.feature.properties);
+    }
+
+
+
+    public resetHighlight(e) {
+        const layer = e.target;
+        const feature = e.target.feature;
+        if (this.checkExistsLayers(feature)) {
+            this.setStyleLayer(layer, MapService.stylelayer.selected);
+        } else {
+            this.setStyleLayer(layer, MapService.stylelayer.defecto);
+        }
+    }
+
     public addMapOverlayTopo(geojsonName: string, propertyName: string) {
         const that = this;
-        const colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
         function style (feature) {
             return {
                 weight: 2,
@@ -320,7 +463,7 @@ export class MapService {
                 color: 'white',
                 dashArray: '3',
                 fillOpacity: 0.7,
-                fillColor: colors[feature.properties.colorIndex]
+                fillColor: MapService.colors[feature.properties.colorIndex]
             }
         }
         if (this.overlays.has(geojsonName)) {
@@ -330,6 +473,19 @@ export class MapService {
                     that.addLayerTopo(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', propertyName, style,
                     function (feature, layer: L.GeoJSON) {
                         layer.bindPopup(feature.properties.publicDisplayName);
+                        layer.on({
+                            mouseover: function(f) {
+                                that.highlightFeature(f);
+                                this.openPopup();
+                            },
+                            mouseout: function(f) {
+                                that.resetHighlight(f);
+                                this.closePopup();
+                            },
+                            click: function(f) {
+                                that.zoomToFeature(f);
+                            }
+                        });
                     }, null).subscribe(data => {
 
 

@@ -25,7 +25,7 @@ Don't forget to edit your server.xml file to configure your config directory, as
 @Injectable()
 export class ConfigService {
     user: any
-    version = "2.0.8"
+    version = "0.1"
 
     static context(): string {
         // a way of discovering the machine name without resorting to a config item.

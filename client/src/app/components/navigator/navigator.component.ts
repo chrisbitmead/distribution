@@ -121,7 +121,7 @@ export class NavigatorComponent implements OnInit, OnChanges {
     }
 
     imcraNames(f){
-        return f.properties['PB_NUM'] + ': ' + f.properties['PB_NAME'];
+        return f.properties['PB_NAME'];
     }
 
     austBoundaryNames(f) {

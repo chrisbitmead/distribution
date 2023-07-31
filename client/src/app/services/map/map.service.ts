@@ -1,13 +1,18 @@
 import {Observable} from 'rxjs';
 import {ComponentFactoryResolver, EventEmitter, Injectable, Injector, Output} from '@angular/core';
-import * as L from 'leaflet';
-import {LatLng} from 'leaflet';
-import 'leaflet.locatecontrol'
+// import * as L from 'leaflet';
+declare const L: any;
+import 'leaflet';
+import 'leaflet-draw';
+import 'leaflet-draw/dist/leaflet.draw-src';
+import 'leaflet.locatecontrol';
 // import topojson as topojsonClient from "topojson-client"
+import {LatLng} from 'leaflet';
 import * as topojson from 'topojson-client'
 import * as topojsonServer from 'topojson-server'
 // import {isUndefined} from 'util';
 import {FeatureGroup} from 'leaflet';
+import {DrawEvents} from 'leaflet-draw/dist/leaflet.draw-src';
 import {HttpClient} from '@angular/common/http';
 import {ConfigService} from '../config/config.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -74,6 +79,8 @@ export class MapService {
     // private detailsselected;
     private arrayBounds = [];
 
+    public drawnItems;
+
 
 
 
@@ -114,11 +121,11 @@ export class MapService {
         //     this.update();
         //     return this._div;
         // };
-
     }
 
     makeMap() {
         this.map = new L.Map('map', {
+            // drawControl: true,
             zoomControl: false,
             center: new LatLng(-28.0, 134.0),
             zoom: 5,
@@ -130,11 +137,34 @@ export class MapService {
         L.control.zoom({position: 'topright'}).addTo(this.map);
         L.control.scale().addTo(this.map);
         L.control.locate({position: 'topright'}).addTo(this.map);
-        const self = this;
-        this.map.on('zoomend', function (event) {
-            self.zoomEndHandler();
-        });
+        // const self = this;
+        // this.map.on('zoomend', function (event) {
+        //     self.zoomEndHandler();
+        // });
 
+        // this.drawnItems = L.featureGroup().addTo(this.map);
+        this.drawnItems = new L.FeatureGroup();
+        this.map.addLayer(this.drawnItems);
+        this.map.addControl(new L.Control.Draw({
+            edit: {
+                featureGroup: this.drawnItems,
+                poly: {
+                    allowIntersection: false
+                }
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true
+                }
+            }
+        }));
+        const that = this;
+        this.map.on(L.Draw.Event.CREATED, function (event) {
+            const type = (event as DrawEvents.Created).layerType,
+                layer = (event as DrawEvents.Created).layer;
+            that.drawnItems.addLayer(layer);
+        });
     }
 
 
@@ -344,7 +374,7 @@ export class MapService {
     }
 
     public removeAllMapOverlays() {
-        this.overlays.forEach((value: boolean, key: string) => {
+        this.overlays.forEach((value: L.Layer, key: string) => {
             this.removeMapOverlay(key)
         });
     }

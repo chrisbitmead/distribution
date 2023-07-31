@@ -195,7 +195,7 @@ export class PlantdataService {
     }
 
 
-    addPlants(group: string, plantPopupClass: Type<any>, data): L.GeoJSON {
+    addPlants(group: string, plantPopupClass: Type<any>, data): L.LayerGroup {
         const that = this;
         // if (that.jsonData[group]) {
         // We create an empty layer even when mapped is not selected, in case you start mapping stuff.

@@ -3,23 +3,31 @@ import {ComponentFactoryResolver, EventEmitter, Injectable, Injector, Output} fr
 // import * as L from 'leaflet';
 declare const L: any;
 import 'leaflet';
-import 'leaflet-draw';
-import 'leaflet-draw/dist/leaflet.draw-src';
 import 'leaflet.locatecontrol';
 // import topojson as topojsonClient from "topojson-client"
 import {LatLng} from 'leaflet';
+import {FeatureGroup} from 'leaflet';
 import * as topojson from 'topojson-client'
 import * as topojsonServer from 'topojson-server'
 // import {isUndefined} from 'util';
-import {FeatureGroup} from 'leaflet';
-import {DrawEvents} from 'leaflet-draw/dist/leaflet.draw-src';
 import {HttpClient} from '@angular/common/http';
 import {ConfigService} from '../config/config.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {LivingService} from '../living/living.service';
-// import iconMarker from 'leaflet/dist/images/marker-icon.png';
-// import iconShadow from './node_modules/leaflet/dist/images/marker-shadow.png';
-// import { icon, Marker } from 'leaflet';
+import '@geoman-io/leaflet-geoman-free';
+// import {
+//     Map,
+//     MapOptions,
+//     TileLayer,
+//     PM,
+//     Rectangle,
+//     Circle,
+//     Marker,
+//     Polygon,
+//     Polyline
+// } from 'leaflet';
+
+L.PM.initialize({ optIn: false });
 
 @Injectable()
 export class MapService {
@@ -82,11 +90,6 @@ export class MapService {
     // private detailsselected;
     private arrayBounds = [];
 
-    public drawnItems;
-
-
-
-
     constructor(http: HttpClient,
                 private livingService: LivingService,
                 configService: ConfigService) {
@@ -140,82 +143,17 @@ export class MapService {
         L.control.zoom({position: 'topright'}).addTo(this.map);
         L.control.scale().addTo(this.map);
         L.control.locate({position: 'topright'}).addTo(this.map);
-        // const self = this;
-        // this.map.on('zoomend', function (event) {
-        //     self.zoomEndHandler();
-        // });
 
-        // const iconMarker = require('/node_modules/leaflet/dist/images/marker-icon.png');
-        // const iconShadow = require('/node_modules/leaflet/dist/images/marker-shadow.png');
 
-        // const iconRetinaUrl = 'assets/marker-icon-2x.png';
-        // const iconUrl = 'assets/marker-icon.png';
-        // const shadowUrl = 'assets/marker-shadow.png';
-        // const iconDefault = icon({
-        //     iconRetinaUrl,
-        //     iconUrl,
-        //     shadowUrl,
-        //     iconSize: [25, 41],
-        //     iconAnchor: [12, 41],
-        //     popupAnchor: [1, -34],
-        //     tooltipAnchor: [16, -28],
-        //     shadowSize: [41, 41]
-        // });
-        // Marker.prototype.options.icon = iconDefault;
-
-        // delete L.Icon.Default.prototype._getIconUrl;
-        // L.Icon.Default.mergeOptions({
-        //     iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-        //     iconUrl: require("leaflet/dist/images/marker-icon.png"),
-        //     shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-        // });
-
-        // L.Icon.Default.mergeOptions({
-        //     // iconRetinaUrl: iconRetina,
-        //     iconUrl: iconMarker,
-        //     shadowUrl: iconShadow
-        // });
-        // let DefaultIcon = L.icon({
-        //     iconUrl: icon,
-        //     shadowUrl: iconShadow
-        // });
-        // L.Marker.prototype.options.icon = L.icon({
-        //     iconUrl: './node_modules/leaflet/dist/images/marker-icon.png',
-        //     shadowUrl: './node_modules/leaflet/dist/images/marker-shadow.png'
-        // });
-
-        // L.Marker.prototype.options.icon = DefaultIcon;
-
-        // delete L.Icon.Default.prototype._getIconUrl;
-        //
-        // L.Icon.Default.mergeOptions({
-        //     iconUrl: require('@/node_mod\'@/noules/leaflet/dist/images/marker-icon.png'),
-        //     shadowUrl: require('@/node_modules/leaflet/dist/images/marker-shadow.png')
-        // });
-
-        // this.drawnItems = L.featureGroup().addTo(this.map);
-        this.drawnItems = new L.FeatureGroup();
-        this.map.addLayer(this.drawnItems);
-        this.map.addControl(new L.Control.Draw({
-            edit: {
-                featureGroup: this.drawnItems,
-                poly: {
-                    allowIntersection: false
-                }
-            },
-            draw: {
-                polygon: {
-                    allowIntersection: false,
-                    showArea: true
-                }
-            }
-        }));
-        const that = this;
-        this.map.on(L.Draw.Event.CREATED, function (event) {
-            const type = (event as DrawEvents.Created).layerType,
-                layer = (event as DrawEvents.Created).layer;
-            that.drawnItems.addLayer(layer);
+        this.map.pm.addControls({
+            position: 'topleft',
+            drawCircle: false,
         });
+        this.map.on("pm:create",
+            (event) => {
+                window.alert('element awas added ');/// + event.layer.getLatLngs());
+            }); // pm:drawend, pm:drawstart, pm:create
+
     }
 
 

@@ -17,6 +17,9 @@ import {HttpClient} from '@angular/common/http';
 import {ConfigService} from '../config/config.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {LivingService} from '../living/living.service';
+// import iconMarker from 'leaflet/dist/images/marker-icon.png';
+// import iconShadow from './node_modules/leaflet/dist/images/marker-shadow.png';
+// import { icon, Marker } from 'leaflet';
 
 @Injectable()
 export class MapService {
@@ -140,6 +143,54 @@ export class MapService {
         // const self = this;
         // this.map.on('zoomend', function (event) {
         //     self.zoomEndHandler();
+        // });
+
+        // const iconMarker = require('/node_modules/leaflet/dist/images/marker-icon.png');
+        // const iconShadow = require('/node_modules/leaflet/dist/images/marker-shadow.png');
+
+        // const iconRetinaUrl = 'assets/marker-icon-2x.png';
+        // const iconUrl = 'assets/marker-icon.png';
+        // const shadowUrl = 'assets/marker-shadow.png';
+        // const iconDefault = icon({
+        //     iconRetinaUrl,
+        //     iconUrl,
+        //     shadowUrl,
+        //     iconSize: [25, 41],
+        //     iconAnchor: [12, 41],
+        //     popupAnchor: [1, -34],
+        //     tooltipAnchor: [16, -28],
+        //     shadowSize: [41, 41]
+        // });
+        // Marker.prototype.options.icon = iconDefault;
+
+        // delete L.Icon.Default.prototype._getIconUrl;
+        // L.Icon.Default.mergeOptions({
+        //     iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+        //     iconUrl: require("leaflet/dist/images/marker-icon.png"),
+        //     shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+        // });
+
+        // L.Icon.Default.mergeOptions({
+        //     // iconRetinaUrl: iconRetina,
+        //     iconUrl: iconMarker,
+        //     shadowUrl: iconShadow
+        // });
+        // let DefaultIcon = L.icon({
+        //     iconUrl: icon,
+        //     shadowUrl: iconShadow
+        // });
+        // L.Marker.prototype.options.icon = L.icon({
+        //     iconUrl: './node_modules/leaflet/dist/images/marker-icon.png',
+        //     shadowUrl: './node_modules/leaflet/dist/images/marker-shadow.png'
+        // });
+
+        // L.Marker.prototype.options.icon = DefaultIcon;
+
+        // delete L.Icon.Default.prototype._getIconUrl;
+        //
+        // L.Icon.Default.mergeOptions({
+        //     iconUrl: require('@/node_mod\'@/noules/leaflet/dist/images/marker-icon.png'),
+        //     shadowUrl: require('@/node_modules/leaflet/dist/images/marker-shadow.png')
         // });
 
         // this.drawnItems = L.featureGroup().addTo(this.map);

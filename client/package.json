@@ -52,7 +52,9 @@
     "topojson-client": "^3.1.0",
     "ts-helpers": "^1.1.2",
     "tslib": "^2.4.0",
-    "zone.js": "~0.11.8"
+    "zone.js": "~0.11.8",
+    "@types/geojson-equality": "0.2.0",
+    "@turf/turf": "^6.5.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.2.5",

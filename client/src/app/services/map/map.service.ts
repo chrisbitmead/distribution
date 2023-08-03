@@ -3,6 +3,7 @@ import {ComponentFactoryResolver, EventEmitter, Injectable, Injector, Output} fr
 // import * as L from 'leaflet';
 declare const L: any;
 import 'leaflet';
+import * as turf from '@turf/turf';
 import 'leaflet.locatecontrol';
 // import topojson as topojsonClient from "topojson-client"
 import {LatLng} from 'leaflet';
@@ -74,6 +75,7 @@ export class MapService {
     public map: L.Map;
     public baseMaps: any;
     private boundingLayer: L.GeoJSON;
+    private geojson;
     private resizeableTTLayer: L.GeoJSON;
     public lastZoom: number;
     http: HttpClient;
@@ -149,13 +151,60 @@ export class MapService {
             position: 'topleft',
             drawCircle: false,
         });
-        this.map.on("pm:create",
-            (event) => {
-                window.alert('element awas added ');/// + event.layer.getLatLngs());
+        this.map.on('pm:create',
+            (event: {shape: string, layer}) => {
+                // (event) => {
+                // window.alert('element awas added ' + event.layer.getLatLngs());
+                this.searchInFeatures(event.layer.getLatLngs());
+                this.map.removeLayer(event.layer);
             }); // pm:drawend, pm:drawstart, pm:create
 
     }
 
+    searchInFeatures(latlngs: LatLng[][]): any[] {
+        const rtn = [];
+        const multipoly = [];
+        latlngs.forEach(function (latlngx: LatLng[]) {
+            const poly = [];
+            latlngx.forEach(function (latlng: LatLng) {
+                poly.push([latlng.lng, latlng.lat]);
+            });
+            poly.push(poly[0]);
+            multipoly.push(poly);
+        });
+        const poly1 = turf.polygon([multipoly[0]]);
+        for (const feature of this.geojson.features) {
+            if (feature.geometry.type === 'Polygon') {
+                if (!turf.booleanDisjoint(poly1, feature)) {
+                    rtn.push(feature);
+                    this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                    // this.featuresSelected.push({
+                    //     publicDisplayName: feature.properties.publicDisplayName,
+                    //     feature: feature
+                    // });
+                }
+            } else if (feature.geometry.type === 'MultiPolygon') {
+                for (const coords of feature.geometry.coordinates) {
+                    const subfeat = {
+                        'type': 'Polygon',
+                        'coordinates': coords,
+                        layer: feature.layer,
+                        properties: feature.properties
+                    };
+                    if (!turf.booleanDisjoint(poly1, subfeat)) {
+                        rtn.push(subfeat);
+                        this.addLayers(subfeat, this.setStyleLayer, subfeat.layer, MapService.stylelayer.selected);
+                        // this.featuresSelected.push({
+                        //     publicDisplayName: subfeat.properties.publicDisplayName,
+                        //     feature: subfeat
+                        // });
+                        break;
+                    }
+                }
+            }
+        }
+        return rtn;
+    }
 
 
     addLayer(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, styleObject: any, onFeature: any, pointTo: any): Observable<any> {
@@ -173,8 +222,8 @@ export class MapService {
             }
 
             that.http.get(uri).subscribe(data => {
-                const geojson = that.extractGeoJson(data);
-                const customLayer = L.geoJSON(geojson, {
+                that.geojson = that.extractGeoJson(data);
+                const customLayer = L.geoJSON(that.geojson, {
                     style: styleObject,
                     onEachFeature: onFeature,
                     pointToLayer: pointTo
@@ -207,10 +256,12 @@ export class MapService {
     }
 
     public addLayers(feature, callback, layer, highlight) {
+        this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
         this.featuresSelected.push({
             publicDisplayName: feature.properties.publicDisplayName,
             feature: feature
         });
+        this.featuresSelected = this.featuresSelected.sort((a,b) => a.publicDisplayName.localeCompare(b.publicDisplayName));
         callback(layer, highlight);
     }
 
@@ -245,7 +296,7 @@ export class MapService {
             this.addLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.highlight)
             this.addBounds(layer)
         }
-        this.map.fitBounds(this.arrayBounds);
+        // this.map.fitBounds(this.arrayBounds);
         // this.detailsselected.update(this.featuresSelected)
     }
 
@@ -400,11 +451,11 @@ export class MapService {
             }
 
             that.http.get(uri).subscribe(data => {
-                const geojson = that.extractGeoJson(data);
-                const topoJSON = topojsonServer.topology([geojson], 1e4);
+                that.geojson = that.extractGeoJson(data);
+                const topoJSON = topojsonServer.topology([that.geojson], 1e4);
                 const neighbors = topojson.neighbors(topoJSON.objects[0].geometries);
                 const featureColors = [];
-                geojson.features.forEach((feature, index) => {
+                that.geojson.features.forEach((feature, index) => {
                     let i = 0;
                     for (;; i++) {
                         let found = false;
@@ -422,7 +473,7 @@ export class MapService {
                     feature.properties.colorIndex = i;
                     feature.properties.publicDisplayName = propertyName(feature);
                 });
-                const customLayer = L.geoJSON(geojson, {
+                const customLayer = L.geoJSON(that.geojson, {
                     style: styleObject,
                     onEachFeature: onFeature,
                     pointToLayer: pointTo
@@ -435,7 +486,7 @@ export class MapService {
                     that.boundingLayer = customLayer;
                     that.map.setMaxBounds(customLayer.getBounds());
                 }
-                obs.next({ layer: customLayer, geojson: geojson, topo: topoJSON, neighbors: neighbors });
+                obs.next({ layer: customLayer, geojson: that.geojson, topo: topoJSON, neighbors: neighbors });
                 obs.complete();
             });
         });
@@ -491,6 +542,7 @@ export class MapService {
             return new Promise(function (resolve, reject) {
                     that.addLayerTopo(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', propertyName, style,
                     function (feature, layer: L.GeoJSON) {
+                        feature.layer = layer;
                         layer.bindPopup(feature.properties.publicDisplayName);
                         layer.on({
                             mouseover: function(f) {

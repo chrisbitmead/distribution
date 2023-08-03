@@ -90,7 +90,7 @@ export class MapService {
     public featuresSelected = [];
     // private info;
     // private detailsselected;
-    private arrayBounds = [];
+    // private arrayBounds = [];
 
     constructor(http: HttpClient,
                 private livingService: LivingService,
@@ -207,48 +207,48 @@ export class MapService {
     }
 
 
-    addLayer(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, styleObject: any, onFeature: any, pointTo: any): Observable<any> {
-        const that = this;
-        const observable = new Observable(function subscribe(obs) {
-            if (styleObject == null) {
-                styleObject = function (feature) {
-                    return {
-                        weight: 0.5, // feature.properties['stroke-width'],
-                        color: '#6e6e6e', // feature.properties.stroke,
-                        fillColor: '#c7fceb', // feature.properties.fill,
-                        content: feature.properties.name
-                    };
-                }
-            }
+    // addLayer(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, styleObject: any, onFeature: any, pointTo: any): Observable<any> {
+    //     const that = this;
+    //     const observable = new Observable(function subscribe(obs) {
+    //         if (styleObject == null) {
+    //             styleObject = function (feature) {
+    //                 return {
+    //                     weight: 0.5, // feature.properties['stroke-width'],
+    //                     color: '#6e6e6e', // feature.properties.stroke,
+    //                     fillColor: '#c7fceb', // feature.properties.fill,
+    //                     content: feature.properties.name
+    //                 };
+    //             }
+    //         }
+    //
+    //         that.http.get(uri).subscribe(data => {
+    //             that.geojson = that.extractGeoJson(data);
+    //             const customLayer = L.geoJSON(that.geojson, {
+    //                 style: styleObject,
+    //                 onEachFeature: onFeature,
+    //                 pointToLayer: pointTo
+    //             });
+    //             // customLayer.addTo(that.map);
+    //             if (resizeToolTips) {
+    //                 that.resizeableTTLayer = customLayer;
+    //             }
+    //             if (setMaxBounds) {
+    //                 that.boundingLayer = customLayer;
+    //                 that.map.setMaxBounds(customLayer.getBounds());
+    //             }
+    //             obs.next(customLayer);
+    //             obs.complete();
+    //         });
+    //     });
+    //     return observable;
+    // }
 
-            that.http.get(uri).subscribe(data => {
-                that.geojson = that.extractGeoJson(data);
-                const customLayer = L.geoJSON(that.geojson, {
-                    style: styleObject,
-                    onEachFeature: onFeature,
-                    pointToLayer: pointTo
-                });
-                // customLayer.addTo(that.map);
-                if (resizeToolTips) {
-                    that.resizeableTTLayer = customLayer;
-                }
-                if (setMaxBounds) {
-                    that.boundingLayer = customLayer;
-                    that.map.setMaxBounds(customLayer.getBounds());
-                }
-                obs.next(customLayer);
-                obs.complete();
-            });
-        });
-        return observable;
-    }
-
-
-    removeLayer(layer: L.GeoJSON) {
-        layer.eachLayer((l) => {
-            this.map.removeLayer(l);
-        });
-    }
+    //
+    // removeLayer(layer: L.GeoJSON) {
+    //     layer.eachLayer((l) => {
+    //         this.map.removeLayer(l);
+    //     });
+    // }
 
     public removerlayers(feature, callback, layer, defecto) {
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
@@ -265,13 +265,13 @@ export class MapService {
         callback(layer, highlight);
     }
 
-    public addBounds(layer) {
-        this.arrayBounds.push(layer.getBounds());
-    }
-
-    public removeBounds(layer) {
-        this.arrayBounds = this.arrayBounds.filter(bounds => bounds !== layer.getBounds());
-    }
+    // public addBounds(layer) {
+    //     this.arrayBounds.push(layer.getBounds());
+    // }
+    //
+    // public removeBounds(layer) {
+    //     this.arrayBounds = this.arrayBounds.filter(bounds => bounds !== layer.getBounds());
+    // }
 
     public checkExistsLayers(feature: { properties: { publicDisplayName: any; }; }): boolean {
         let result = false
@@ -290,11 +290,11 @@ export class MapService {
 
         if (this.checkExistsLayers(feature)) {
             this.removerlayers(feature, this.setStyleLayer, layer, MapService.stylelayer.defecto)
-            this.removeBounds(layer)
+            // this.removeBounds(layer)
 
         } else {
             this.addLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.highlight)
-            this.addBounds(layer)
+            // this.addBounds(layer)
         }
         // this.map.fitBounds(this.arrayBounds);
         // this.detailsselected.update(this.featuresSelected)
@@ -377,35 +377,35 @@ export class MapService {
     }
 
 
-    public addMapOverlay(geojsonName: string) {
-        const that = this;
-        if (this.overlays.has(geojsonName)) {
-            this.overlays.get(geojsonName).addTo(this.map);
-        } else {
-            return new Promise(function (resolve, reject) {
-                    that.addLayer(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', function (feature) {
-                        return {
-                            weight: 0.5, // feature.properties['stroke-width'],
-                            color: '#6e6e6e', // feature.properties.stroke,
-                            fillColor: '#cebcf5', // feature.properties.fill,
-                            content: feature.properties.Display_Name
-                        }
-                    }, function (feature, layer: L.GeoJSON) {
-                        // layer.bindPopup(feature.properties.publicDisplayName);
-                        layer.bindTooltip(feature.properties.publicDisplayName, {
-                            className: 'zoom_16',
-                            permanent: true,
-                            direction: 'center'
-                        });
-                    }, null).subscribe(layer => {
-                        that.overlays.set(geojsonName, layer);
-                        layer.addTo(that.map);
-                        resolve('done');
-                    });
-                }
-            );
-        }
-    }
+    // public addMapOverlay(geojsonName: string) {
+    //     const that = this;
+    //     if (this.overlays.has(geojsonName)) {
+    //         this.overlays.get(geojsonName).addTo(this.map);
+    //     } else {
+    //         return new Promise(function (resolve, reject) {
+    //                 that.addLayer(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', function (feature) {
+    //                     return {
+    //                         weight: 0.5, // feature.properties['stroke-width'],
+    //                         color: '#6e6e6e', // feature.properties.stroke,
+    //                         fillColor: '#cebcf5', // feature.properties.fill,
+    //                         content: feature.properties.Display_Name
+    //                     }
+    //                 }, function (feature, layer: L.GeoJSON) {
+    //                     // layer.bindPopup(feature.properties.publicDisplayName);
+    //                     layer.bindTooltip(feature.properties.publicDisplayName, {
+    //                         className: 'zoom_16',
+    //                         permanent: true,
+    //                         direction: 'center'
+    //                     });
+    //                 }, null).subscribe(layer => {
+    //                     that.overlays.set(geojsonName, layer);
+    //                     layer.addTo(that.map);
+    //                     resolve('done');
+    //                 });
+    //             }
+    //         );
+    //     }
+    // }
 
     public removeMapOverlay(geojsonName: string) {
         if (this.overlays.has(geojsonName)) {
@@ -423,17 +423,17 @@ export class MapService {
         this.addMapOverlayTopo(geojsonName, propertyName);
     }
 
-    public toggleMapOverlay(geojsonName: string, propertyName) {
-        if (this.overlays.has(geojsonName)) {
-            if (this.map.hasLayer(this.overlays.get(geojsonName))) {
-                this.removeMapOverlay(geojsonName);
-            } else {
-                this.addMapOverlayTopo(geojsonName, propertyName)
-            }
-        } else {
-            this.addMapOverlayTopo(geojsonName, propertyName)
-        }
-    }
+    // public toggleMapOverlay(geojsonName: string, propertyName) {
+    //     if (this.overlays.has(geojsonName)) {
+    //         if (this.map.hasLayer(this.overlays.get(geojsonName))) {
+    //             this.removeMapOverlay(geojsonName);
+    //         } else {
+    //             this.addMapOverlayTopo(geojsonName, propertyName)
+    //         }
+    //     } else {
+    //         this.addMapOverlayTopo(geojsonName, propertyName)
+    //     }
+    // }
 
     addLayerTopo(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, propertyName,
                  styleObject: any, onFeature: any, pointTo: any): Observable<any> {

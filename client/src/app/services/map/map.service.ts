@@ -149,19 +149,70 @@ export class MapService {
 
         this.map.pm.addControls({
             position: 'topleft',
-            drawCircle: false,
+            drawMarker: false,
+            drawCircleMarker: false,
+            drawPolyline: false,
+            drawRectangle: true,
+            drawPolygon: true,
+            drawCircle: true,
+            drawText: false,
+            editMode: false,
+            dragMode: false,
+            cutPolygon: false,
+            removalMode: false,
+            rotateMode: false,
+            drawControls: true,
+            editControls: false,
+            customControls: false,
+            optionsControls: false,
+            pinningOption: false,
+            snappingOption: false,
+            splitMode: false,
+            scaleMode: false
         });
         this.map.on('pm:create',
             (event: {shape: string, layer}) => {
                 // (event) => {
                 // window.alert('element awas added ' + event.layer.getLatLngs());
-                this.searchInFeatures(event.layer.getLatLngs());
+                if (event.shape === 'Circle') {
+                    this.searchInCircle(event.layer.getLatLng(), event.layer.getRadius());
+                } else if (event.shape === 'Rectangle' || event.shape === 'Polygon') {
+                    this.searchInPolygon(event.layer.getLatLngs());
+                }
                 this.map.removeLayer(event.layer);
             }); // pm:drawend, pm:drawstart, pm:create
 
     }
 
-    searchInFeatures(latlngs: LatLng[][]): any[] {
+    searchInCircle(centre: LatLng, radius: number): any[] {
+        const rtn = [];
+        const point = [centre.lng, centre.lat];
+        for (const feature of this.geojson.features) {
+            if (feature.geometry.type === 'Polygon') {
+                for (const coords of feature.geometry.coordinates[0]) {
+                    const distance: number = turf.distance(point, coords, { units: 'meters'});
+                    if (distance < radius) {
+                        rtn.push(feature);
+                        this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                    }
+                }
+            } else if (feature.geometry.type === 'MultiPolygon') {
+                for (const poly of feature.geometry.coordinates) {
+                    for (const coords of poly[0]) {
+                        const distance: number = turf.distance(point, coords, { units: 'meters'});
+                        if (distance < radius) {
+                            rtn.push(feature);
+                            this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                        }
+                    }
+                }
+            }
+        }
+        return rtn;
+    }
+
+
+    searchInPolygon(latlngs: LatLng[][]): any[] {
         const rtn = [];
         const multipoly = [];
         latlngs.forEach(function (latlngx: LatLng[]) {
@@ -261,7 +312,7 @@ export class MapService {
             publicDisplayName: feature.properties.publicDisplayName,
             feature: feature
         });
-        this.featuresSelected = this.featuresSelected.sort((a,b) => a.publicDisplayName.localeCompare(b.publicDisplayName));
+        this.featuresSelected = this.featuresSelected.sort((a, b) => a.publicDisplayName.localeCompare(b.publicDisplayName));
         callback(layer, highlight);
     }
 

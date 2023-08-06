@@ -174,7 +174,8 @@ export class MapService {
             (event: {shape: string, layer}) => {
                 // (event) => {
                 // window.alert('element awas added ' + event.layer.getLatLngs());
-                if (event.shape === 'Circle') {
+                if (!this.geojson) {
+                } else if (event.shape === 'Circle') {
                     this.searchInCircle(event.layer.getLatLng(), event.layer.getRadius());
                 } else if (event.shape === 'Rectangle' || event.shape === 'Polygon') {
                     this.searchInPolygon(event.layer.getLatLngs());
@@ -468,6 +469,7 @@ export class MapService {
         this.overlays.forEach((value: L.Layer, key: string) => {
             this.removeMapOverlay(key)
         });
+        this.geojson = null;
     }
     public toggleOnMapOverlay(geojsonName: string, propertyName) {
         this.removeAllMapOverlays();

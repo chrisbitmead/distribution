@@ -1,4 +1,7 @@
 <div #infoPane id="infoPaneAllResults" class="info-pane" *ngIf="mapService.featuresSelected.length > 0; else elseBlock">
+    <div style="float: right;">
+        <button (click)="mapService.clearSelected()" title="Clear" tooltip="Clear Selected">Clear</button>
+    </div>
     <ul>
     <div *ngFor="let item of mapService.featuresSelected">
         <li>{{item.publicDisplayName}}</li>

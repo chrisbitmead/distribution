@@ -258,51 +258,13 @@ export class MapService {
         return rtn;
     }
 
+    clearSelected() {
+        for (const sel of this.featuresSelected) {
+            this.removeLayers(sel.feature, this.setStyleLayer, sel.feature.layer, MapService.stylelayer.defecto);
+        }
+    }
 
-    // addLayer(resizeToolTips: boolean, setMaxBounds: boolean, uri: string, styleObject: any, onFeature: any, pointTo: any): Observable<any> {
-    //     const that = this;
-    //     const observable = new Observable(function subscribe(obs) {
-    //         if (styleObject == null) {
-    //             styleObject = function (feature) {
-    //                 return {
-    //                     weight: 0.5, // feature.properties['stroke-width'],
-    //                     color: '#6e6e6e', // feature.properties.stroke,
-    //                     fillColor: '#c7fceb', // feature.properties.fill,
-    //                     content: feature.properties.name
-    //                 };
-    //             }
-    //         }
-    //
-    //         that.http.get(uri).subscribe(data => {
-    //             that.geojson = that.extractGeoJson(data);
-    //             const customLayer = L.geoJSON(that.geojson, {
-    //                 style: styleObject,
-    //                 onEachFeature: onFeature,
-    //                 pointToLayer: pointTo
-    //             });
-    //             // customLayer.addTo(that.map);
-    //             if (resizeToolTips) {
-    //                 that.resizeableTTLayer = customLayer;
-    //             }
-    //             if (setMaxBounds) {
-    //                 that.boundingLayer = customLayer;
-    //                 that.map.setMaxBounds(customLayer.getBounds());
-    //             }
-    //             obs.next(customLayer);
-    //             obs.complete();
-    //         });
-    //     });
-    //     return observable;
-    // }
-
-    //
-    // removeLayer(layer: L.GeoJSON) {
-    //     layer.eachLayer((l) => {
-    //         this.map.removeLayer(l);
-    //     });
-    // }
-
-    public removerlayers(feature, callback, layer, defecto) {
+    public removeLayers(feature, callback, layer, defecto) {
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
         callback(layer, defecto);
     }
@@ -341,7 +303,7 @@ export class MapService {
         const feature = e.target.feature;
 
         if (this.checkExistsLayers(feature)) {
-            this.removerlayers(feature, this.setStyleLayer, layer, MapService.stylelayer.defecto)
+            this.removeLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.defecto)
             // this.removeBounds(layer)
 
         } else {

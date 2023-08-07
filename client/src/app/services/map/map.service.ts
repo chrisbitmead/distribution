@@ -36,10 +36,11 @@ export class MapService {
     static stylelayer = {
         defecto: function (f) {
             return {
-                weight: 2,
+                weight: 1,
                 opacity: 1,
                 color: 'white',
-                dashArray: '3',
+                dashArray: '5,5',
+                dashOffset: '0',
                 fillOpacity: 0.7,
                 fillColor: MapService.colors[f.properties.colorIndex]
             }
@@ -54,17 +55,20 @@ export class MapService {
         highlight: function(f) {
             return {
                 weight: 5,
+                opacity: 1,
                 color: 'red',
                 dashArray: '',
-                fillOpacity: 0.7
+                fillOpacity: 0.7,
+                fillColor: MapService.colors[f.properties.colorIndex]
             }
         },
         selected: function(f) {
             return {
-                weight: 2,
+                weight: 5,
                 opacity: 1,
                 color: 'blue',
-                dashArray: '3',
+                dashArray: '5,5',
+                dashOffset: '5',
                 fillOpacity: 0.7,
                 fillColor: MapService.colors[f.properties.colorIndex]
             }
@@ -454,16 +458,16 @@ export class MapService {
                  styleObject: any, onFeature: any, pointTo: any): Observable<any> {
         const that = this;
         const observable = new Observable(function subscribe(obs) {
-            if (styleObject == null) {
-                styleObject = function (feature) {
-                    return {
-                        weight: 0.5, // feature.properties['stroke-width'],
-                        color: '#6e6e6e', // feature.properties.stroke,
-                        fillColor: '#c7fceb', // feature.properties.fill,
-                        content: feature.properties.publicDisplayName
-                    };
-                }
-            }
+            // if (styleObject == null) {
+            //     styleObject = function (feature) {
+            //         return {
+            //             weight: 0.5, // feature.properties['stroke-width'],
+            //             color: '#6e6e6e', // feature.properties.stroke,
+            //             fillColor: '#c7fceb', // feature.properties.fill,
+            //             content: feature.properties.publicDisplayName
+            //         };
+            //     }
+            // }
 
             that.http.get(uri).subscribe(data => {
                 that.geojson = that.extractGeoJson(data);
@@ -541,21 +545,21 @@ export class MapService {
 
     public addMapOverlayTopo(geojsonName: string, propertyName: string) {
         const that = this;
-        function style (feature) {
-            return {
-                weight: 2,
-                opacity: 1,
-                color: 'white',
-                dashArray: '3',
-                fillOpacity: 0.7,
-                fillColor: MapService.colors[feature.properties.colorIndex]
-            }
-        }
+        // function style (feature) {
+        //     return {
+        //         weight: 2,
+        //         opacity: 1,
+        //         color: 'white',
+        //         dashArray: '3',
+        //         fillOpacity: 0.7,
+        //         fillColor: MapService.colors[feature.properties.colorIndex]
+        //     }
+        // }
         if (this.overlays.has(geojsonName)) {
             this.overlays.get(geojsonName).addTo(this.map);
         } else {
             return new Promise(function (resolve, reject) {
-                    that.addLayerTopo(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', propertyName, style,
+                    that.addLayerTopo(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', propertyName, MapService.stylelayer.defecto,
                     function (feature, layer: L.GeoJSON) {
                         feature.layer = layer;
                         layer.bindPopup(feature.properties.publicDisplayName);

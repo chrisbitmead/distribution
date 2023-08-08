@@ -148,7 +148,7 @@ export class MapService {
         L.Icon.Default.imagePath = '/images';
         L.control.zoom({position: 'topright'}).addTo(this.map);
         L.control.scale().addTo(this.map);
-        L.control.locate({position: 'topright'}).addTo(this.map);
+        // L.control.locate({position: 'topright'}).addTo(this.map);
 
 
         this.map.pm.addControls({

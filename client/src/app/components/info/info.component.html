@@ -2,7 +2,7 @@
     <div style="float: right;">
         <button (click)="mapService.clearSelected()" title="Clear" tooltip="Clear Selected">Clear</button>
     </div>
-    <ul>
+    <ul style="columns: 4">
     <div *ngFor="let item of mapService.featuresSelected">
         <li>{{item.publicDisplayName}}</li>
     </div>

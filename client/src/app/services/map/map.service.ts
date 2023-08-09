@@ -504,14 +504,6 @@ export class MapService {
         return observable;
     }
 
-    // public redraw(b) {
-    //     geojson.eachLayer(function (layer) {
-    //         if (layer.feature.properties.zipcode == zipcodes[b]) {
-    //             selectTypeaheadFeature(layer)
-    //         }
-    //     })
-    // }
-
     public setStyleLayer(layer, styleSelected) {
         layer.setStyle(styleSelected(layer.feature));
     }
@@ -522,13 +514,13 @@ export class MapService {
         // this.info.update(layer.feature.properties);
     }
 
-    public setSelected(feature, selected: boolean) {
-        if (selected) {
-            this.highlightFeature(feature);
-        } else {
-            this.resetHighlight(feature);
-        }
-    }
+    // public setSelected(feature, selected: boolean) {
+    //     if (selected) {
+    //         this.highlightFeature(feature);
+    //     } else {
+    //         this.resetHighlight(feature);
+    //     }
+    // }
 
     public toggleLayers(feature) {
         if (this.checkExistsLayers(feature)) {
@@ -539,8 +531,6 @@ export class MapService {
             this.addLayers(feature, feature.layer)
             // this.addBounds(layer)
         }
-        // this.map.fitBounds(this.arrayBounds);
-        // this.detailsselected.update(this.featuresSelected)
     }
 
 

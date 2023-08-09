@@ -75,11 +75,11 @@ export class MapService {
         }
     }
     @Output() selectedEvent = new EventEmitter<any>();
+    @Output() geojson;
 
     public map: L.Map;
     public baseMaps: any;
     private boundingLayer: L.GeoJSON;
-    private geojson;
     private resizeableTTLayer: L.GeoJSON;
     public lastZoom: number;
     http: HttpClient;
@@ -91,6 +91,7 @@ export class MapService {
     // IBRA7SubregionLayer: L.Layer;
     // IMCRALayer: L.Layer;
     private overlays = new Map<string, L.Layer>();
+    private geojsons = new Map<string, {}>();
     public featuresSelected = [];
     // private info;
     // private detailsselected;
@@ -198,7 +199,7 @@ export class MapService {
                     const distance: number = turf.distance(point, coords, { units: 'meters'});
                     if (distance < radius) {
                         rtn.push(feature);
-                        this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                        this.addLayers(feature, feature.layer);
                     }
                 }
             } else if (feature.geometry.type === 'MultiPolygon') {
@@ -207,7 +208,7 @@ export class MapService {
                         const distance: number = turf.distance(point, coords, { units: 'meters'});
                         if (distance < radius) {
                             rtn.push(feature);
-                            this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                            this.addLayers(feature, feature.layer);
                         }
                     }
                 }
@@ -233,7 +234,7 @@ export class MapService {
             if (feature.geometry.type === 'Polygon') {
                 if (!turf.booleanDisjoint(poly1, feature)) {
                     rtn.push(feature);
-                    this.addLayers(feature, this.setStyleLayer, feature.layer, MapService.stylelayer.selected);
+                    this.addLayers(feature, feature.layer);
                     // this.featuresSelected.push({
                     //     publicDisplayName: feature.properties.publicDisplayName,
                     //     feature: feature
@@ -249,7 +250,7 @@ export class MapService {
                     };
                     if (!turf.booleanDisjoint(poly1, subfeat)) {
                         rtn.push(subfeat);
-                        this.addLayers(subfeat, this.setStyleLayer, subfeat.layer, MapService.stylelayer.selected);
+                        this.addLayers(subfeat, subfeat.layer);
                         // this.featuresSelected.push({
                         //     publicDisplayName: subfeat.properties.publicDisplayName,
                         //     feature: subfeat
@@ -263,24 +264,29 @@ export class MapService {
     }
 
     clearSelected() {
+        for (const f of this.geojson.features) {
+            f.checked = false;
+        }
         for (const sel of this.featuresSelected) {
-            this.removeLayers(sel.feature, this.setStyleLayer, sel.feature.layer, MapService.stylelayer.defecto);
+            this.removeLayers(sel.feature, sel.feature.layer);
         }
     }
 
-    public removeLayers(feature, callback, layer, defecto) {
+    public removeLayers(feature, layer) {
+        feature.checked = false;
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
-        callback(layer, defecto);
+        this.setStyleLayer(layer, MapService.stylelayer.defecto);
     }
 
-    public addLayers(feature, callback, layer, highlight) {
+    public addLayers(feature, layer) {
+        feature.checked = true;
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
         this.featuresSelected.push({
             publicDisplayName: feature.properties.publicDisplayName,
             feature: feature
         });
         this.featuresSelected = this.featuresSelected.sort((a, b) => a.publicDisplayName.localeCompare(b.publicDisplayName));
-        callback(layer, highlight);
+        this.setStyleLayer(layer, MapService.stylelayer.highlight);
     }
 
     // public addBounds(layer) {
@@ -291,31 +297,16 @@ export class MapService {
     //     this.arrayBounds = this.arrayBounds.filter(bounds => bounds !== layer.getBounds());
     // }
 
-    public checkExistsLayers(feature: { properties: { publicDisplayName: any; }; }): boolean {
-        let result = false
-        for (let i = 0; i < this.featuresSelected.length; i++) {
-            if (this.featuresSelected[i].publicDisplayName === feature.properties.publicDisplayName) {
-                result = true;
-                break;
-            }
-        };
-        return result
-    }
-
-    public zoomToFeature(e) {
-        const layer = e.target;
-        const feature = e.target.feature;
-
-        if (this.checkExistsLayers(feature)) {
-            this.removeLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.defecto)
-            // this.removeBounds(layer)
-
-        } else {
-            this.addLayers(feature, this.setStyleLayer, layer, MapService.stylelayer.highlight)
-            // this.addBounds(layer)
-        }
-        // this.map.fitBounds(this.arrayBounds);
-        // this.detailsselected.update(this.featuresSelected)
+    public checkExistsLayers(feature: { properties: { publicDisplayName: any; }, checked: boolean}): boolean {
+        return feature.checked;
+        // let result = false
+        // for (let i = 0; i < this.featuresSelected.length; i++) {
+        //     if (this.featuresSelected[i].publicDisplayName === feature.properties.publicDisplayName) {
+        //         result = true;
+        //         break;
+        //     }
+        // };
+        // return result
     }
 
     fitFeatures(layers: any[], maxZoom: number, zoomEvenIfWithinBoundsAlready: boolean = true) {
@@ -492,6 +483,7 @@ export class MapService {
                     feature.properties.colorIndex = i;
                     feature.properties.publicDisplayName = propertyName(feature);
                 });
+                that.geojson.features = that.geojson.features.sort((a, b) => a.properties.publicDisplayName.localeCompare(b.properties.publicDisplayName));
                 const customLayer = L.geoJSON(that.geojson, {
                     style: styleObject,
                     onEachFeature: onFeature,
@@ -524,22 +516,39 @@ export class MapService {
         layer.setStyle(styleSelected(layer.feature));
     }
 
-    public highlightFeature(e) {
-        const layer = e.target;
-        this.setStyleLayer(layer, MapService.stylelayer.highlight);
+    public highlightFeature(feature) {
+        this.setStyleLayer(feature.layer, MapService.stylelayer.highlight);
         // layer.setStyle(MapService.stylelayer.highlight(layer.feature));
         // this.info.update(layer.feature.properties);
     }
 
-
-
-    public resetHighlight(e) {
-        const layer = e.target;
-        const feature = e.target.feature;
-        if (this.checkExistsLayers(feature)) {
-            this.setStyleLayer(layer, MapService.stylelayer.selected);
+    public setSelected(feature, selected: boolean) {
+        if (selected) {
+            this.highlightFeature(feature);
         } else {
-            this.setStyleLayer(layer, MapService.stylelayer.defecto);
+            this.resetHighlight(feature);
+        }
+    }
+
+    public toggleLayers(feature) {
+        if (this.checkExistsLayers(feature)) {
+            this.removeLayers(feature, feature.layer)
+            // this.removeBounds(layer)
+
+        } else {
+            this.addLayers(feature, feature.layer)
+            // this.addBounds(layer)
+        }
+        // this.map.fitBounds(this.arrayBounds);
+        // this.detailsselected.update(this.featuresSelected)
+    }
+
+
+    public resetHighlight(feature) {
+        if (this.checkExistsLayers(feature)) {
+            this.setStyleLayer(feature.layer, MapService.stylelayer.selected);
+        } else {
+            this.setStyleLayer(feature.layer, MapService.stylelayer.defecto);
         }
     }
 
@@ -557,6 +566,7 @@ export class MapService {
         // }
         if (this.overlays.has(geojsonName)) {
             this.overlays.get(geojsonName).addTo(this.map);
+            this.geojson = this.geojsons.get(geojsonName);
         } else {
             return new Promise(function (resolve, reject) {
                     that.addLayerTopo(true, false, ConfigService.context() + '/assets/' + geojsonName + '.json', propertyName, MapService.stylelayer.defecto,
@@ -564,16 +574,16 @@ export class MapService {
                         feature.layer = layer;
                         layer.bindPopup(feature.properties.publicDisplayName);
                         layer.on({
-                            mouseover: function(f) {
-                                that.highlightFeature(f);
+                            mouseover: function(e) {
+                                that.highlightFeature(e.target.feature);
                                 this.openPopup();
                             },
-                            mouseout: function(f) {
-                                that.resetHighlight(f);
+                            mouseout: function(e) {
+                                that.resetHighlight(e.target.feature);
                                 this.closePopup();
                             },
-                            click: function(f) {
-                                that.zoomToFeature(f);
+                            click: function(e) {
+                                that.toggleLayers(e.target.feature);
                             }
                         });
                     }, null).subscribe(data => {
@@ -582,7 +592,7 @@ export class MapService {
                         // L.geoJson(data.geojson, {
                         //     style
                         // }).addTo(that.map);
-
+                        that.geojsons.set(geojsonName, data.geojson);
                         that.overlays.set(geojsonName, data.layer);
                         data.layer.addTo(that.map);
                         resolve('done');

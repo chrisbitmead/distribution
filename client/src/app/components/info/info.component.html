@@ -1,14 +1,23 @@
-<div #infoPane id="infoPaneAllResults" class="info-pane" *ngIf="mapService.featuresSelected.length > 0; else elseBlock">
-    <div style="float: right;">
-        <button (click)="mapService.clearSelected()" title="Clear" tooltip="Clear Selected">Clear</button>
-    </div>
-    <ul style="columns: 4">
-    <div *ngFor="let item of mapService.featuresSelected">
-        <li>{{item.publicDisplayName}}</li>
-    </div>
-    </ul>
-</div>
+<!--<div #infoPane id="infoPaneAllResults" class="info-pane" *ngIf="mapService.featuresSelected.length > 0; else elseBlock">-->
+<!--    <div style="float: right;">-->
+<!--        <button (click)="mapService.clearSelected()" title="Clear" tooltip="Clear Selected">Clear</button>-->
+<!--    </div>-->
+<!--    <ul>-->
+<!--    <div *ngFor="let item of mapService.featuresSelected">-->
+<!--        <li>{{item.publicDisplayName}}</li>-->
+<!--    </div>-->
+<!--    </ul>-->
+<!--</div>-->
 <!--<h2 *ngIf="plantDataService.jsonData.results?.plants?.features?.length == 0 && (plantDataService.jsonData.results?.ntnl?.features?.length == 0 || !plantDataService.jsonData?.criteria?.ntnl)">No results</h2>-->
-<ng-template #elseBlock>No results</ng-template>
+<div #infoPane id="infoPaneCheckboxes" class="info-pane" *ngIf="mapService.geojson; else elseBlock">
+    <div *ngFor="let f of mapService.geojson.features">
+        <input id="regions" class="form-check-input" type="checkbox" [(ngModel)]="f.checked" (change)="mapService.setSelected(f, f.checked)"/>
+<!--               [(ngModel)]="ala1"-->
+<!--               (change)="this.addAlaData('data1x')"/>-->
+        {{f.properties.publicDisplayName}}
+        <br/>
+    </div>
+</div>
+<ng-template #elseBlock>No overlay selected</ng-template>
 <!--CRIT: {{plantDataService.jsonData?.criteria?.ntnl}}-->
 <!--LEN: {{plantDataService.jsonData.ntnl?.plants?.features?.length }}-->

@@ -32,6 +32,7 @@ L.PM.initialize({ optIn: false });
 
 @Injectable()
 export class MapService {
+    static states = [ 'ACT', 'NSW', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
     static  colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
     static stylelayer = {
         defecto: function (f) {
@@ -278,6 +279,27 @@ export class MapService {
         this.setStyleLayer(layer, MapService.stylelayer.defecto);
     }
 
+    isLetter(c: string): boolean {
+        return c.toLowerCase() !== c.toUpperCase();
+    }
+
+    isState(s: string): boolean {
+        for (const st of MapService.states) {
+            if (s.startsWith(st) && !this.isLetter(s.charAt(st.length))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    compareName(a: string, b: string): number {
+        const va = this.isState(a) ? 0 : 1;
+        const vb = this.isState(b) ? 0 : 1;
+        if (va - vb !== 0) {
+            return va - vb;
+        }
+        return a.localeCompare(b);
+    }
+
     public addLayers(feature, layer) {
         feature.checked = true;
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);
@@ -285,7 +307,7 @@ export class MapService {
             publicDisplayName: feature.properties.publicDisplayName,
             feature: feature
         });
-        this.featuresSelected = this.featuresSelected.sort((a, b) => a.publicDisplayName.localeCompare(b.publicDisplayName));
+        this.featuresSelected = this.featuresSelected.sort((a, b) => this.compareName(a.publicDisplayName, b.publicDisplayName));
         this.setStyleLayer(layer, MapService.stylelayer.highlight);
     }
 
@@ -483,7 +505,7 @@ export class MapService {
                     feature.properties.colorIndex = i;
                     feature.properties.publicDisplayName = propertyName(feature);
                 });
-                that.geojson.features = that.geojson.features.sort((a, b) => a.properties.publicDisplayName.localeCompare(b.properties.publicDisplayName));
+                that.geojson.features = that.geojson.features.sort((a, b) => that.compareName(a.properties.publicDisplayName, b.properties.publicDisplayName));
                 const customLayer = L.geoJSON(that.geojson, {
                     style: styleObject,
                     onEachFeature: onFeature,

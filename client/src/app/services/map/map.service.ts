@@ -105,7 +105,11 @@ export class MapService {
         this.configService = configService;
         this.baseMaps = {
             OpenStreetMap: new L.TileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="https://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="https://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
+                maxBounds: [
+                    [-8.62, 71.85],
+                    [-53.82, 168.3]
+                ]
             })
         };
         // this.info = L.control({
@@ -138,18 +142,31 @@ export class MapService {
     }
 
     makeMap() {
+        const bounds = new L.LatLngBounds(new L.LatLng(-8.62, 71.85), new L.LatLng(-53.82, 168.3));
+
         this.map = new L.Map('map', {
             // drawControl: true,
             zoomControl: false,
-            center: new LatLng(-28.0, 134.0),
+            // center: new LatLng(-28.0, 134.0),
+            // center: new LatLng(-31.22, 120.07),
+            center: new LatLng(-24.25, 133.42),
             zoom: 5,
             // minZoom: 16,
             // maxZoom: 24,
-            layers: [this.baseMaps.OpenStreetMap]
+            layers: [this.baseMaps.OpenStreetMap],
+            maxBounds: bounds,
+            // maxBounds: [
+            //     [-8.62, 71.85],
+            //     [-53.82, 168.3]
+            // ]
+            minZoom: 3.5
         });
+        // this.map.setMinZoom( this.map.getBoundsZoom( this.map.options.maxBounds ) );
         L.Icon.Default.imagePath = '/images';
         L.control.zoom({position: 'topright'}).addTo(this.map);
         L.control.scale().addTo(this.map);
+        this.map.setMaxBounds(this.map.getBounds());
+
         // L.control.locate({position: 'topright'}).addTo(this.map);
 
 
@@ -515,10 +532,10 @@ export class MapService {
                 if (resizeToolTips) {
                     that.resizeableTTLayer = customLayer;
                 }
-                if (setMaxBounds) {
-                    that.boundingLayer = customLayer;
-                    that.map.setMaxBounds(customLayer.getBounds());
-                }
+                // if (setMaxBounds) {
+                //     that.boundingLayer = customLayer;
+                //     that.map.setMaxBounds(customLayer.getBounds());
+                // }
                 obs.next({ layer: customLayer, geojson: that.geojson, topo: topoJSON, neighbors: neighbors });
                 obs.complete();
             });

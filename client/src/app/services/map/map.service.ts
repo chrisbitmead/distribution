@@ -290,6 +290,42 @@ export class MapService {
         }
     }
 
+    copyToClipboard() {
+        let val = '';
+        let first = true;
+        for (const f of this.geojson.features) {
+            if (f.checked) {
+                if (!first) {
+                    val += ', ';
+                }
+                val += f.properties.publicDisplayName;
+                first = false;
+            }
+        }
+        if (!navigator.clipboard) {
+            // deprecated... remove at some point.
+            const selBox = document.createElement('textarea');
+            selBox.style.position = 'fixed';
+            selBox.style.left = '0';
+            selBox.style.top = '0';
+            selBox.style.opacity = '0';
+            selBox.value = val;
+            document.body.appendChild(selBox);
+            selBox.focus();
+            selBox.select();
+            document.execCommand('copy');
+            document.body.removeChild(selBox);
+        } else {
+            navigator.clipboard.writeText(val).then(
+                function(){
+                    // alert("yeah!"); // success
+                }).catch(
+                    function() {
+                        alert('clipboard error');
+                    });
+        }
+    }
+
     public removeLayers(feature, layer) {
         feature.checked = false;
         this.featuresSelected = this.featuresSelected.filter(obj => obj.publicDisplayName !== feature.properties.publicDisplayName);

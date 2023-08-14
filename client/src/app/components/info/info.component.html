@@ -10,6 +10,9 @@
 <!--</div>-->
 <!--<h2 *ngIf="plantDataService.jsonData.results?.plants?.features?.length == 0 && (plantDataService.jsonData.results?.ntnl?.features?.length == 0 || !plantDataService.jsonData?.criteria?.ntnl)">No results</h2>-->
 <div #infoPane id="infoPaneCheckboxes" class="info-pane" *ngIf="mapService.geojson; else elseBlock">
+    <button (click)="mapService.clearSelected()" title="Clear" tooltip="Clear Selected">Clear</button>
+    <button (click)="mapService.copyToClipboard()" title="Clear" tooltip="CopyToClipboard">Copy</button>
+    <br/>
     <div *ngFor="let f of mapService.geojson.features">
         <input id="regions" class="form-check-input" type="checkbox" [(ngModel)]="f.checked" (change)="mapService.resetHighlight(f)"/>
 <!--               [(ngModel)]="ala1"-->
